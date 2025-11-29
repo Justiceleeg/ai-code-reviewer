@@ -12,29 +12,27 @@ This document outlines the implementation tasks for AI Code Review. Tasks are or
 ## Phase 1: Project Setup
 
 ### 1.1 Initialize Next.js Project
-- [ ] Create Next.js 16 app with App Router (`pnpm create next-app@latest`)
-- [ ] Configure TypeScript strict mode
-- [ ] Set up folder structure per PRD (app/, components/, lib/, stores/, types/ at root level)
-- [ ] Create barrel exports (index.ts) for each folder
+- [x] Create Next.js 16 app with App Router (`pnpm create next-app@latest`)
+- [x] Configure TypeScript strict mode
+- [x] Set up folder structure per PRD (app/, components/, lib/, stores/, types/ at root level)
+- [x] Create barrel exports (index.ts) for each folder
 
 ### 1.2 Install Dependencies
-- [ ] Install Tailwind CSS v4 and configure
-- [ ] Install Zustand v5
-- [ ] Install Monaco Editor (`@monaco-editor/react`)
-- [ ] Install Vercel AI SDK (`pnpm add ai @ai-sdk/openai`)
-- [ ] Install utility libraries (uuid, date-fns if needed)
+- [x] Install Tailwind CSS v4 and configure
+- [x] Install Zustand v5
+- [x] Install Monaco Editor (`@monaco-editor/react`)
+- [x] Install Vercel AI SDK (`pnpm add ai @ai-sdk/openai`)
 
 ### 1.3 Environment Setup
-- [ ] Create `.env.local` with `OPENAI_API_KEY`
-- [ ] Create `.env.example` for documentation
-- [ ] Add `.env.local` to `.gitignore`
-- [ ] Configure environment validation
+- [x] Create `.env.local` with `OPENAI_API_KEY`
+- [x] Create `.env.example` for documentation
+- [x] Add `.env.local` to `.gitignore`
 
 ### 1.4 Base Layout
-- [ ] Create root layout with dark theme default
-- [ ] Set up global styles (Tailwind base)
-- [ ] Create responsive container (desktop-only)
-- [ ] Add app metadata (title, description)
+- [x] Create root layout with dark theme default
+- [x] Set up global styles (Tailwind base)
+- [x] Create responsive container (desktop-only)
+- [x] Add app metadata (title, description)
 
 **Phase 1 Deliverable:** Empty app shell with all dependencies installed and configured.
 
