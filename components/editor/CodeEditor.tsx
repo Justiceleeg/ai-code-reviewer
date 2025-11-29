@@ -21,19 +21,36 @@ export interface ContextMenuEvent {
   selection: SelectionRange;
 }
 
+export interface SelectionModeState {
+  threadId: string;
+  originalRange: SelectionRange;
+}
+
 interface CodeEditorProps {
   onSelectionChange?: (selection: SelectionRange | null) => void;
   onGutterClick?: (threadId: string) => void;
   onContextMenu?: (event: ContextMenuEvent) => void;
+  selectionMode?: SelectionModeState | null;
+  onSelectionModeConfirm?: (threadId: string, newRange: SelectionRange) => void;
+  onSelectionModeCancel?: () => void;
 }
 
-export function CodeEditor({ onSelectionChange, onGutterClick, onContextMenu }: CodeEditorProps) {
+export function CodeEditor({
+  onSelectionChange,
+  onGutterClick,
+  onContextMenu,
+  selectionMode,
+  onSelectionModeConfirm,
+  onSelectionModeCancel,
+}: CodeEditorProps) {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
   const decorationsRef = useRef<string[]>([]);
+  const selectionModeDecorationsRef = useRef<string[]>([]);
   const [lineCount, setLineCount] = useState(0);
   const [showWarning, setShowWarning] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [pendingSelection, setPendingSelection] = useState<SelectionRange | null>(null);
 
   const { code, language, theme, threads, setCode, setLanguage, setFileName } = useAppStore(
     useShallow((state) => ({
@@ -93,6 +110,48 @@ export function CodeEditor({ onSelectionChange, onGutterClick, onContextMenu }: 
     decorationsRef.current = editor.deltaDecorations(decorationsRef.current, newDecorations);
   }, [threads]);
 
+  // Handle selection mode decorations
+  useEffect(() => {
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+    if (!editor || !monaco) return;
+
+    if (selectionMode) {
+      // Highlight the original (stale) selection with a special style
+      const { startLine, endLine } = selectionMode.originalRange;
+      const selectionModeDecorations: editor.IModelDeltaDecoration[] = [
+        {
+          range: new monaco.Range(startLine, 1, endLine, 1),
+          options: {
+            isWholeLine: true,
+            className: 'selection-mode-highlight',
+          },
+        },
+      ];
+      selectionModeDecorationsRef.current = editor.deltaDecorations(
+        selectionModeDecorationsRef.current,
+        selectionModeDecorations
+      );
+
+      // Scroll to the original selection
+      editor.revealLineInCenter(startLine);
+    } else {
+      // Clear selection mode decorations
+      selectionModeDecorationsRef.current = editor.deltaDecorations(
+        selectionModeDecorationsRef.current,
+        []
+      );
+      setPendingSelection(null);
+    }
+  }, [selectionMode]);
+
+  // Track selection changes when in selection mode
+  useEffect(() => {
+    if (!selectionMode) {
+      setPendingSelection(null);
+    }
+  }, [selectionMode]);
+
   const handleEditorMount: OnMount = useCallback(
     (editor, monaco) => {
       editorRef.current = editor;
@@ -134,6 +193,10 @@ export function CodeEditor({ onSelectionChange, onGutterClick, onContextMenu }: 
         }
         .thread-line-resolved {
           background-color: rgba(113, 113, 122, 0.05);
+        }
+        .selection-mode-highlight {
+          background-color: rgba(234, 179, 8, 0.2);
+          border-left: 3px solid #eab308;
         }
       `;
       if (!document.getElementById('thread-gutter-styles')) {
@@ -205,6 +268,7 @@ export function CodeEditor({ onSelectionChange, onGutterClick, onContextMenu }: 
   const handleChange: OnChange = useCallback(
     (value) => {
       const newCode = value || '';
+      const previousCode = code;
 
       // Enforce line limit
       const lines = newCode.split('\n');
@@ -216,15 +280,21 @@ export function CodeEditor({ onSelectionChange, onGutterClick, onContextMenu }: 
 
       setCode(newCode);
 
-      // Auto-detect language if it's still plaintext
-      if (language === 'plaintext' && newCode.trim()) {
+      // Auto-detect language when:
+      // 1. Pasting into empty editor (previous was empty/whitespace, now has content)
+      // 2. Language is still plaintext
+      const wasEmpty = !previousCode.trim();
+      const hasContent = newCode.trim().length > 0;
+      const shouldDetect = (wasEmpty && hasContent) || language === 'plaintext';
+
+      if (shouldDetect && hasContent) {
         const detected = detectLanguage('untitled', newCode);
         if (detected !== 'plaintext') {
           setLanguage(detected);
         }
       }
     },
-    [language, setCode, setLanguage]
+    [code, language, setCode, setLanguage]
   );
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -275,6 +345,30 @@ export function CodeEditor({ onSelectionChange, onGutterClick, onContextMenu }: 
 
   const monacoTheme = theme === 'dark' ? 'vs-dark' : 'light';
 
+  // Handle selection mode confirm
+  const handleSelectionModeConfirm = useCallback(() => {
+    if (!selectionMode || !editorRef.current) return;
+
+    const editor = editorRef.current;
+    const selection = editor.getSelection();
+
+    if (!selection || selection.isEmpty()) {
+      // No selection, use original range
+      onSelectionModeConfirm?.(selectionMode.threadId, selectionMode.originalRange);
+    } else {
+      const newRange: SelectionRange = {
+        startLine: selection.startLineNumber,
+        endLine: selection.endLineNumber,
+      };
+      onSelectionModeConfirm?.(selectionMode.threadId, newRange);
+    }
+  }, [selectionMode, onSelectionModeConfirm]);
+
+  // Handle selection mode cancel
+  const handleSelectionModeCancel = useCallback(() => {
+    onSelectionModeCancel?.();
+  }, [onSelectionModeCancel]);
+
   return (
     <div
       className="relative flex h-full flex-col"
@@ -282,13 +376,40 @@ export function CodeEditor({ onSelectionChange, onGutterClick, onContextMenu }: 
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
+      {/* Selection mode banner */}
+      {selectionMode && (
+        <div className="flex items-center justify-between border-b border-yellow-500/50 bg-yellow-500/10 px-3 py-2">
+          <div className="flex items-center gap-2 text-sm text-yellow-400">
+            <span className="font-medium">Selection Mode:</span>
+            <span>
+              Select new line range for thread (Lines {selectionMode.originalRange.startLine}-
+              {selectionMode.originalRange.endLine})
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleSelectionModeCancel}
+              className="rounded px-3 py-1 text-sm text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSelectionModeConfirm}
+              className="rounded bg-yellow-500 px-3 py-1 text-sm font-medium text-zinc-900 hover:bg-yellow-400"
+            >
+              Apply Selection
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Line count indicator */}
-      <div className="flex items-center justify-between border-b border-zinc-800 px-3 py-1.5 text-xs text-zinc-500">
+      <div className="flex items-center justify-between border-b border-zinc-800 px-3 py-1.5 text-xs text-zinc-500 light:border-zinc-200 light:text-zinc-600">
         <span>
           {lineCount} / {MAX_LINES} lines
         </span>
         {showWarning && (
-          <span className="text-yellow-500">Approaching line limit</span>
+          <span className="text-yellow-500 light:text-yellow-600">Approaching line limit</span>
         )}
       </div>
 
@@ -296,15 +417,15 @@ export function CodeEditor({ onSelectionChange, onGutterClick, onContextMenu }: 
       <div className="relative flex-1">
         {/* Drag overlay */}
         {isDragging && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-zinc-900/80 border-2 border-dashed border-blue-500 rounded-lg">
-            <div className="text-lg text-blue-400">Drop file to load</div>
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-zinc-900/80 border-2 border-dashed border-blue-500 rounded-lg light:bg-zinc-100/90">
+            <div className="text-lg text-blue-400 light:text-blue-600">Drop file to load</div>
           </div>
         )}
 
         {/* Placeholder when empty */}
         {!code && (
           <div className="absolute inset-0 z-5 flex items-center justify-center pointer-events-none">
-            <div className="text-center text-zinc-600">
+            <div className="text-center text-zinc-600 light:text-zinc-500">
               <p className="text-lg">Paste or drag code here</p>
               <p className="mt-1 text-sm">Supports all major languages</p>
             </div>

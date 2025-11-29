@@ -113,36 +113,36 @@ export function ContextMenu({ x, y, onAction, onClose }: ContextMenuProps) {
   return (
     <div
       ref={menuRef}
-      className="fixed z-50 min-w-48 rounded-md border border-zinc-700 bg-zinc-800 py-1 shadow-lg"
+      className="fixed z-50 min-w-48 rounded-md border border-zinc-700 bg-zinc-800 py-1 shadow-lg light:border-zinc-300 light:bg-white light:shadow-xl"
       style={{ left: position.left, top: position.top }}
     >
       {!showCustomInput ? (
         <>
           <button
             onClick={() => handleAction('explain')}
-            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-zinc-300 hover:bg-zinc-700"
+            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-zinc-300 hover:bg-zinc-700 light:text-zinc-800 light:hover:bg-zinc-100"
           >
             <LightbulbIcon />
             Explain
           </button>
           <button
             onClick={() => handleAction('bugs')}
-            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-zinc-300 hover:bg-zinc-700"
+            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-zinc-300 hover:bg-zinc-700 light:text-zinc-800 light:hover:bg-zinc-100"
           >
             <BugIcon />
             Find bugs
           </button>
           <button
             onClick={() => handleAction('improve')}
-            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-zinc-300 hover:bg-zinc-700"
+            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-zinc-300 hover:bg-zinc-700 light:text-zinc-800 light:hover:bg-zinc-100"
           >
             <SparklesIcon />
             Improve
           </button>
-          <div className="my-1 border-t border-zinc-700" />
+          <div className="my-1 border-t border-zinc-700 light:border-zinc-200" />
           <button
             onClick={handleCustomClick}
-            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-zinc-300 hover:bg-zinc-700"
+            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-zinc-300 hover:bg-zinc-700 light:text-zinc-800 light:hover:bg-zinc-100"
           >
             <ChatIcon />
             Custom...
@@ -157,7 +157,7 @@ export function ContextMenu({ x, y, onAction, onClose }: ContextMenuProps) {
             onChange={(e) => setCustomPrompt(e.target.value)}
             onKeyDown={handleCustomKeyDown}
             placeholder="Ask anything about this code..."
-            className="w-full rounded border border-zinc-600 bg-zinc-900 px-2 py-1.5 text-sm text-zinc-200 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none"
+            className="w-full rounded border border-zinc-600 bg-zinc-900 px-2 py-1.5 text-sm text-zinc-200 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none light:border-zinc-300 light:bg-zinc-50 light:text-zinc-900 light:placeholder:text-zinc-500"
           />
           <div className="mt-2 flex justify-end gap-2">
             <button
@@ -165,7 +165,7 @@ export function ContextMenu({ x, y, onAction, onClose }: ContextMenuProps) {
                 setShowCustomInput(false);
                 setCustomPrompt('');
               }}
-              className="rounded px-2 py-1 text-xs text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200"
+              className="rounded px-2 py-1 text-xs text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200 light:text-zinc-700 light:hover:bg-zinc-100 light:hover:text-zinc-900"
             >
               Cancel
             </button>

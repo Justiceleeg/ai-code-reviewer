@@ -3,4 +3,5 @@ export {
   detectLanguageFromExtension,
   detectLanguageFromContent,
   getLanguageDisplayName,
+  SUPPORTED_LANGUAGES,
 } from './languageDetection';

@@ -1,9 +1,19 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { CodeEditor, SelectionRange, ContextMenuEvent, ContextMenu, ThreadPanel } from '@/components';
+import {
+  CodeEditor,
+  SelectionRange,
+  SelectionModeState,
+  ContextMenuEvent,
+  ContextMenu,
+  ThreadPanel,
+  AppHeader,
+  ConfirmDialog,
+} from '@/components';
 import { useHydration, useAppStore } from '@/stores';
 import { useReview } from '@/lib/ai';
+import { exportToMarkdown, downloadMarkdown } from '@/lib/export';
 import type { ReviewAction } from '@/types';
 
 interface ContextMenuState {
@@ -17,8 +27,15 @@ export default function Home() {
   const [selection, setSelection] = useState<SelectionRange | null>(null);
   const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [selectionMode, setSelectionMode] = useState<SelectionModeState | null>(null);
 
   const createThread = useAppStore((state) => state.createThread);
+  const clearSession = useAppStore((state) => state.clearSession);
+  const updateThreadSelection = useAppStore((state) => state.updateThreadSelection);
+  const fileName = useAppStore((state) => state.editor.fileName);
+  const language = useAppStore((state) => state.editor.language);
+  const threads = useAppStore((state) => state.threads);
   const { startReview, isStreaming, activeMessageId } = useReview();
 
   const handleThreadClick = useCallback((threadId: string) => {
@@ -67,6 +84,49 @@ export default function Home() {
     [contextMenu, createThread, startReview]
   );
 
+  const handleExport = useCallback(() => {
+    const markdown = exportToMarkdown({ fileName, language, threads });
+    downloadMarkdown(markdown, fileName);
+  }, [fileName, language, threads]);
+
+  const handleClearSession = useCallback(() => {
+    setShowClearConfirm(true);
+  }, []);
+
+  const handleConfirmClear = useCallback(() => {
+    clearSession();
+    setActiveThreadId(null);
+    setSelection(null);
+    setShowClearConfirm(false);
+  }, [clearSession]);
+
+  const handleCancelClear = useCallback(() => {
+    setShowClearConfirm(false);
+  }, []);
+
+  // Selection mode handlers
+  const handleEnterSelectionMode = useCallback(
+    (threadId: string, startLine: number, endLine: number) => {
+      setSelectionMode({
+        threadId,
+        originalRange: { startLine, endLine },
+      });
+    },
+    []
+  );
+
+  const handleSelectionModeConfirm = useCallback(
+    (threadId: string, newRange: SelectionRange) => {
+      updateThreadSelection(threadId, newRange.startLine, newRange.endLine);
+      setSelectionMode(null);
+    },
+    [updateThreadSelection]
+  );
+
+  const handleSelectionModeCancel = useCallback(() => {
+    setSelectionMode(null);
+  }, []);
+
   // Show loading state during hydration to prevent mismatch
   if (!hydrated) {
     return (
@@ -77,16 +137,8 @@ export default function Home() {
   }
 
   return (
-    <div className="flex h-screen flex-col bg-zinc-950">
-      {/* Header placeholder - will be implemented in Phase 8 */}
-      <header className="flex h-12 shrink-0 items-center justify-between border-b border-zinc-800 px-4">
-        <h1 className="text-lg font-semibold text-zinc-100">AI Code Review</h1>
-        {selection && (
-          <span className="text-sm text-zinc-500">
-            Lines {selection.startLine}-{selection.endLine} selected
-          </span>
-        )}
-      </header>
+    <div className="flex h-screen flex-col bg-zinc-950 light:bg-zinc-50">
+      <AppHeader onExport={handleExport} onClearSession={handleClearSession} />
 
       {/* Main content area */}
       <div className="flex flex-1 overflow-hidden">
@@ -96,6 +148,9 @@ export default function Home() {
             onSelectionChange={setSelection}
             onGutterClick={handleGutterClick}
             onContextMenu={handleContextMenu}
+            selectionMode={selectionMode}
+            onSelectionModeConfirm={handleSelectionModeConfirm}
+            onSelectionModeCancel={handleSelectionModeCancel}
           />
         </main>
 
@@ -105,6 +160,7 @@ export default function Home() {
             onThreadClick={handleThreadClick}
             activeThreadId={activeThreadId}
             streamingMessageId={activeMessageId}
+            onUpdateSelection={handleEnterSelectionMode}
           />
         </aside>
       </div>
@@ -118,6 +174,18 @@ export default function Home() {
           onClose={handleContextMenuClose}
         />
       )}
+
+      {/* Clear session confirmation dialog */}
+      <ConfirmDialog
+        isOpen={showClearConfirm}
+        title="Clear Session"
+        message="Are you sure you want to clear this session? All code and review threads will be permanently deleted."
+        confirmLabel="Clear Session"
+        cancelLabel="Cancel"
+        variant="danger"
+        onConfirm={handleConfirmClear}
+        onCancel={handleCancelClear}
+      />
     </div>
   );
 }

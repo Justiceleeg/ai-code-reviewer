@@ -11,9 +11,15 @@ interface ThreadPanelProps {
   onThreadClick?: (threadId: string) => void;
   activeThreadId?: string | null;
   streamingMessageId?: string | null;
+  onUpdateSelection?: (threadId: string, startLine: number, endLine: number) => void;
 }
 
-export function ThreadPanel({ onThreadClick, activeThreadId, streamingMessageId }: ThreadPanelProps) {
+export function ThreadPanel({
+  onThreadClick,
+  activeThreadId,
+  streamingMessageId,
+  onUpdateSelection,
+}: ThreadPanelProps) {
   const [width, setWidth] = useState(() => {
     if (typeof window === 'undefined') return DEFAULT_WIDTH;
     const saved = localStorage.getItem('thread-panel-width');
@@ -71,18 +77,18 @@ export function ThreadPanel({ onThreadClick, activeThreadId, streamingMessageId 
     return (
       <div
         ref={panelRef}
-        className="flex h-full w-10 shrink-0 flex-col border-l border-zinc-800 bg-zinc-950"
+        className="flex h-full w-10 shrink-0 flex-col border-l border-zinc-800 bg-zinc-950 light:border-zinc-200 light:bg-white"
       >
         <button
           onClick={toggleCollapsed}
-          className="flex h-10 w-full items-center justify-center border-b border-zinc-800 text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200"
+          className="flex h-10 w-full items-center justify-center border-b border-zinc-800 text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200 light:border-zinc-200 light:text-zinc-700 light:hover:bg-zinc-100 light:hover:text-zinc-900"
           aria-label="Expand thread panel"
         >
           <ChevronLeftIcon />
         </button>
         <div className="flex flex-1 items-center justify-center">
           <span
-            className="text-xs text-zinc-600"
+            className="text-xs text-zinc-600 light:text-zinc-500"
             style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
           >
             Threads
@@ -95,23 +101,23 @@ export function ThreadPanel({ onThreadClick, activeThreadId, streamingMessageId 
   return (
     <div
       ref={panelRef}
-      className="relative flex h-full shrink-0 flex-col border-l border-zinc-800 bg-zinc-950"
+      className="relative flex h-full shrink-0 flex-col border-l border-zinc-800 bg-zinc-950 light:border-zinc-200 light:bg-white"
       style={{ width }}
     >
       {/* Resize handle */}
       <div
         className={`absolute left-0 top-0 h-full w-1 cursor-col-resize transition-colors ${
-          isResizing ? 'bg-blue-500' : 'bg-transparent hover:bg-zinc-700'
+          isResizing ? 'bg-blue-500' : 'bg-transparent hover:bg-zinc-700 light:hover:bg-zinc-300'
         }`}
         onMouseDown={handleMouseDown}
       />
 
       {/* Header */}
-      <div className="flex h-10 shrink-0 items-center justify-between border-b border-zinc-800 px-3">
-        <h2 className="text-sm font-medium text-zinc-300">Threads</h2>
+      <div className="flex h-10 shrink-0 items-center justify-between border-b border-zinc-800 px-3 light:border-zinc-200">
+        <h2 className="text-sm font-medium text-zinc-300 light:text-zinc-900">Threads</h2>
         <button
           onClick={toggleCollapsed}
-          className="rounded p-1 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
+          className="rounded p-1 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300 light:text-zinc-500 light:hover:bg-zinc-200 light:hover:text-zinc-900"
           aria-label="Collapse thread panel"
         >
           <ChevronRightIcon />
@@ -124,6 +130,7 @@ export function ThreadPanel({ onThreadClick, activeThreadId, streamingMessageId 
           onThreadClick={onThreadClick}
           activeThreadId={activeThreadId}
           streamingMessageId={streamingMessageId}
+          onUpdateSelection={onUpdateSelection}
         />
       </div>
     </div>

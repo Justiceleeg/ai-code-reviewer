@@ -21,18 +21,18 @@ export function ThreadMessage({
   const isUser = message.role === 'user';
 
   return (
-    <div className={`px-3 py-2 ${isUser ? 'bg-zinc-900/50' : 'bg-transparent'}`}>
+    <div className={`px-3 py-2 ${isUser ? 'bg-zinc-900/50 light:bg-zinc-100/50' : 'bg-transparent'}`}>
       {/* Role indicator */}
       <div className="mb-1 flex items-center gap-2">
         <span
           className={`text-xs font-medium ${
-            isUser ? 'text-blue-400' : 'text-emerald-400'
+            isUser ? 'text-blue-400 light:text-blue-600' : 'text-emerald-400 light:text-emerald-600'
           }`}
         >
           {isUser ? 'You' : 'AI'}
         </span>
         {isStreaming && (
-          <span className="flex items-center gap-1 text-xs text-zinc-500">
+          <span className="flex items-center gap-1 text-xs text-zinc-500 light:text-zinc-500">
             <TypingIndicator />
             Thinking...
           </span>
@@ -40,7 +40,7 @@ export function ThreadMessage({
       </div>
 
       {/* Message content */}
-      <div className="text-sm text-zinc-300">
+      <div className="text-sm text-zinc-300 light:text-zinc-800">
         {message.content ? (
           <MarkdownContent content={message.content} />
         ) : isStreaming ? (
@@ -109,9 +109,9 @@ function MarkdownContent({ content }: MarkdownContentProps) {
         elements.push(
           <pre
             key={`code-${index}`}
-            className="my-2 overflow-x-auto rounded bg-zinc-800 p-2 text-xs"
+            className="my-2 overflow-x-auto rounded bg-zinc-800 p-2 text-xs light:bg-zinc-100"
           >
-            <code className="text-zinc-300">{codeBlockContent.join('\n')}</code>
+            <code className="text-zinc-300 light:text-zinc-800">{codeBlockContent.join('\n')}</code>
           </pre>
         );
         codeBlockContent = [];
@@ -132,7 +132,7 @@ function MarkdownContent({ content }: MarkdownContentProps) {
     // Headers
     if (line.startsWith('### ')) {
       elements.push(
-        <h3 key={index} className="mt-3 mb-1 text-sm font-semibold text-zinc-200">
+        <h3 key={index} className="mt-3 mb-1 text-sm font-semibold text-zinc-200 light:text-zinc-900">
           {line.slice(4)}
         </h3>
       );
@@ -140,7 +140,7 @@ function MarkdownContent({ content }: MarkdownContentProps) {
     }
     if (line.startsWith('## ')) {
       elements.push(
-        <h2 key={index} className="mt-3 mb-1 text-sm font-semibold text-zinc-200">
+        <h2 key={index} className="mt-3 mb-1 text-sm font-semibold text-zinc-200 light:text-zinc-900">
           {line.slice(3)}
         </h2>
       );
@@ -150,7 +150,7 @@ function MarkdownContent({ content }: MarkdownContentProps) {
     // Bullet points
     if (line.startsWith('- ') || line.startsWith('* ')) {
       elements.push(
-        <li key={index} className="ml-4 text-zinc-300">
+        <li key={index} className="ml-4 text-zinc-300 light:text-zinc-800">
           {formatInlineCode(line.slice(2))}
         </li>
       );
@@ -161,7 +161,7 @@ function MarkdownContent({ content }: MarkdownContentProps) {
     const numberedMatch = line.match(/^(\d+)\.\s/);
     if (numberedMatch) {
       elements.push(
-        <li key={index} className="ml-4 list-decimal text-zinc-300">
+        <li key={index} className="ml-4 list-decimal text-zinc-300 light:text-zinc-800">
           {formatInlineCode(line.slice(numberedMatch[0].length))}
         </li>
       );
@@ -176,7 +176,7 @@ function MarkdownContent({ content }: MarkdownContentProps) {
 
     // Regular paragraph
     elements.push(
-      <p key={index} className="text-zinc-300">
+      <p key={index} className="text-zinc-300 light:text-zinc-800">
         {formatInlineCode(line)}
       </p>
     );
@@ -192,14 +192,14 @@ function formatInlineCode(text: string): React.ReactNode {
   return parts.map((part, i) => {
     if (part.startsWith('`') && part.endsWith('`')) {
       return (
-        <code key={i} className="rounded bg-zinc-800 px-1 py-0.5 text-xs text-emerald-400">
+        <code key={i} className="rounded bg-zinc-800 px-1 py-0.5 text-xs text-emerald-400 light:bg-zinc-200 light:text-emerald-600">
           {part.slice(1, -1)}
         </code>
       );
     }
     if (part.startsWith('**') && part.endsWith('**')) {
       return (
-        <strong key={i} className="font-semibold text-zinc-200">
+        <strong key={i} className="font-semibold text-zinc-200 light:text-zinc-900">
           {part.slice(2, -2)}
         </strong>
       );
@@ -221,16 +221,16 @@ interface OutsideNotesBannerProps {
 
 function OutsideNotesBanner({ notes }: OutsideNotesBannerProps) {
   return (
-    <div className="mt-3 rounded border border-blue-500/30 bg-blue-500/10 p-2">
+    <div className="mt-3 rounded border border-blue-500/30 bg-blue-500/10 p-2 light:border-blue-600/30 light:bg-blue-50">
       <div className="mb-1 flex items-center gap-1.5">
         <InfoIcon />
-        <span className="text-xs font-medium text-blue-400">
+        <span className="text-xs font-medium text-blue-400 light:text-blue-700">
           Additional changes may be needed
         </span>
       </div>
       <div className="space-y-1">
         {notes.map((note, index) => (
-          <p key={index} className="text-xs text-blue-300/80">
+          <p key={index} className="text-xs text-blue-300/80 light:text-blue-600">
             {note}
           </p>
         ))}
@@ -251,7 +251,7 @@ function InfoIcon() {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="text-blue-400"
+      className="text-blue-400 light:text-blue-600"
     >
       <circle cx="12" cy="12" r="10" />
       <path d="M12 16v-4" />

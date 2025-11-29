@@ -39,7 +39,7 @@ export function ThreadInput({
   );
 
   return (
-    <form onSubmit={handleSubmit} className="border-t border-zinc-800 p-2">
+    <form onSubmit={handleSubmit} className="border-t border-zinc-800 p-2 light:border-zinc-200">
       <div className="flex items-center gap-2">
         <input
           ref={inputRef}
@@ -49,7 +49,7 @@ export function ThreadInput({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled}
-          className="flex-1 rounded bg-zinc-800 px-3 py-1.5 text-sm text-zinc-200 placeholder-zinc-500 outline-none ring-1 ring-zinc-700 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex-1 rounded bg-zinc-800 px-3 py-1.5 text-sm text-zinc-200 placeholder-zinc-500 outline-none ring-1 ring-zinc-700 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 light:bg-zinc-100 light:text-zinc-900 light:placeholder-zinc-500 light:ring-zinc-300"
         />
         <button
           type="submit"

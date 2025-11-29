@@ -9,9 +9,15 @@ interface ThreadListProps {
   onThreadClick?: (threadId: string) => void;
   activeThreadId?: string | null;
   streamingMessageId?: string | null;
+  onUpdateSelection?: (threadId: string, startLine: number, endLine: number) => void;
 }
 
-export function ThreadList({ onThreadClick, activeThreadId, streamingMessageId }: ThreadListProps) {
+export function ThreadList({
+  onThreadClick,
+  activeThreadId,
+  streamingMessageId,
+  onUpdateSelection,
+}: ThreadListProps) {
   const threads = useAppStore(useShallow((state) => state.threads));
 
   // Sort threads by start line number
@@ -22,11 +28,11 @@ export function ThreadList({ onThreadClick, activeThreadId, streamingMessageId }
   if (sortedThreads.length === 0) {
     return (
       <div className="flex h-full flex-col items-center justify-center px-4 py-8 text-center">
-        <div className="mb-3 rounded-full bg-zinc-800/50 p-3">
+        <div className="mb-3 rounded-full bg-zinc-800/50 p-3 light:bg-zinc-200/50">
           <MessageIcon />
         </div>
-        <p className="text-sm font-medium text-zinc-400">No threads yet</p>
-        <p className="mt-1 text-xs text-zinc-600">
+        <p className="text-sm font-medium text-zinc-400 light:text-zinc-700">No threads yet</p>
+        <p className="mt-1 text-xs text-zinc-600 light:text-zinc-500">
           Select code and right-click to start a review
         </p>
       </div>
@@ -34,7 +40,7 @@ export function ThreadList({ onThreadClick, activeThreadId, streamingMessageId }
   }
 
   return (
-    <div className="divide-y divide-zinc-800">
+    <div className="divide-y divide-zinc-800 light:divide-zinc-200">
       {sortedThreads.map((thread) => (
         <ThreadItem
           key={thread.id}
@@ -42,6 +48,7 @@ export function ThreadList({ onThreadClick, activeThreadId, streamingMessageId }
           isActive={thread.id === activeThreadId}
           onClick={() => onThreadClick?.(thread.id)}
           streamingMessageId={streamingMessageId}
+          onUpdateSelection={onUpdateSelection}
         />
       ))}
     </div>

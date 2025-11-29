@@ -1,5 +1,41 @@
 // Language detection utilities
 
+// Supported languages for the language selector
+export const SUPPORTED_LANGUAGES = [
+  { id: 'plaintext', label: 'Plain Text' },
+  { id: 'javascript', label: 'JavaScript' },
+  { id: 'typescript', label: 'TypeScript' },
+  { id: 'python', label: 'Python' },
+  { id: 'java', label: 'Java' },
+  { id: 'csharp', label: 'C#' },
+  { id: 'cpp', label: 'C++' },
+  { id: 'c', label: 'C' },
+  { id: 'go', label: 'Go' },
+  { id: 'rust', label: 'Rust' },
+  { id: 'ruby', label: 'Ruby' },
+  { id: 'php', label: 'PHP' },
+  { id: 'swift', label: 'Swift' },
+  { id: 'kotlin', label: 'Kotlin' },
+  { id: 'scala', label: 'Scala' },
+  { id: 'html', label: 'HTML' },
+  { id: 'css', label: 'CSS' },
+  { id: 'scss', label: 'SCSS' },
+  { id: 'json', label: 'JSON' },
+  { id: 'xml', label: 'XML' },
+  { id: 'yaml', label: 'YAML' },
+  { id: 'markdown', label: 'Markdown' },
+  { id: 'sql', label: 'SQL' },
+  { id: 'shell', label: 'Shell/Bash' },
+  { id: 'dockerfile', label: 'Dockerfile' },
+  { id: 'graphql', label: 'GraphQL' },
+  { id: 'dart', label: 'Dart' },
+  { id: 'elixir', label: 'Elixir' },
+  { id: 'haskell', label: 'Haskell' },
+  { id: 'lua', label: 'Lua' },
+  { id: 'perl', label: 'Perl' },
+  { id: 'r', label: 'R' },
+] as const;
+
 // Map file extensions to Monaco language IDs
 const extensionToLanguage: Record<string, string> = {
   // JavaScript/TypeScript

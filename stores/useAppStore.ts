@@ -376,9 +376,11 @@ export const useAppStore = create<AppStore>()(
 
       // Session actions
       clearSession: () =>
-        set({
+        set((state) => ({
           ...initialState,
-        }),
+          // Preserve UI preferences
+          theme: state.theme,
+        })),
 
       setTheme: (theme: Theme) =>
         set({

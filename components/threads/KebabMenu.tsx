@@ -72,7 +72,7 @@ export function KebabMenu({
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
         disabled={disabled}
-        className="rounded p-1 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300 disabled:cursor-not-allowed disabled:opacity-50"
+        className="rounded p-1 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300 disabled:cursor-not-allowed disabled:opacity-50 light:text-zinc-500 light:hover:bg-zinc-200 light:hover:text-zinc-900"
         aria-label="Thread options"
       >
         <KebabIcon />
@@ -81,12 +81,12 @@ export function KebabMenu({
       {isOpen && (
         <div
           ref={menuRef}
-          className="absolute right-0 top-full z-50 mt-1 min-w-36 rounded-md border border-zinc-700 bg-zinc-800 py-1 shadow-lg"
+          className="absolute right-0 top-full z-50 mt-1 min-w-36 rounded-md border border-zinc-700 bg-zinc-800 py-1 shadow-lg light:border-zinc-300 light:bg-white"
         >
           {showUpdateSelection && onUpdateSelection && (
             <button
               onClick={handleUpdateSelection}
-              className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-zinc-300 hover:bg-zinc-700"
+              className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-zinc-300 hover:bg-zinc-700 light:text-zinc-800 light:hover:bg-zinc-100"
             >
               <RefreshIcon />
               Update Selection
@@ -94,15 +94,15 @@ export function KebabMenu({
           )}
           <button
             onClick={handleResolve}
-            className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-zinc-300 hover:bg-zinc-700"
+            className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-zinc-300 hover:bg-zinc-700 light:text-zinc-800 light:hover:bg-zinc-100"
           >
             <CheckIcon />
             Resolve
           </button>
-          <div className="my-1 border-t border-zinc-700" />
+          <div className="my-1 border-t border-zinc-700 light:border-zinc-200" />
           <button
             onClick={handleDelete}
-            className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-red-400 hover:bg-zinc-700"
+            className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-red-400 hover:bg-zinc-700 light:text-red-500 light:hover:bg-red-50"
           >
             <TrashIcon />
             Delete
