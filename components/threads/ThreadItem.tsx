@@ -30,6 +30,7 @@ export function ThreadItem({
   // Auto-expand and scroll when this thread becomes active
   useEffect(() => {
     if (isActive) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsExpanded(true);
       // Scroll to this thread after a short delay to allow expansion
       setTimeout(() => {

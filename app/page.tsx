@@ -24,7 +24,7 @@ interface ContextMenuState {
 
 export default function Home() {
   const hydrated = useHydration();
-  const [selection, setSelection] = useState<SelectionRange | null>(null);
+  const [_selection, setSelection] = useState<SelectionRange | null>(null);
   const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
@@ -36,7 +36,7 @@ export default function Home() {
   const fileName = useAppStore((state) => state.editor.fileName);
   const language = useAppStore((state) => state.editor.language);
   const threads = useAppStore((state) => state.threads);
-  const { startReview, isStreaming, activeMessageId } = useReview();
+  const { startReview, activeMessageId } = useReview();
 
   const handleThreadClick = useCallback((threadId: string) => {
     setActiveThreadId(threadId);

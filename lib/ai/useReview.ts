@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { useAppStore } from '@/stores';
 import { parseResponse } from './parseSuggestions';
-import type { ReviewAction, Message } from '@/types';
+import type { ReviewAction } from '@/types';
 
 interface ReviewOptions {
   threadId: string;

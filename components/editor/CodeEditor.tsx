@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState, useEffect } from 'react';
+import { useCallback, useRef, useState, useEffect, useMemo } from 'react';
 import Editor, { OnMount, OnChange, Monaco } from '@monaco-editor/react';
 import type { editor } from 'monaco-editor';
 import { useShallow } from 'zustand/react/shallow';
@@ -47,10 +47,7 @@ export function CodeEditor({
   const monacoRef = useRef<Monaco | null>(null);
   const decorationsRef = useRef<string[]>([]);
   const selectionModeDecorationsRef = useRef<string[]>([]);
-  const [lineCount, setLineCount] = useState(0);
-  const [showWarning, setShowWarning] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [pendingSelection, setPendingSelection] = useState<SelectionRange | null>(null);
 
   const { code, language, theme, threads, setCode, setLanguage, setFileName } = useAppStore(
     useShallow((state) => ({
@@ -64,12 +61,9 @@ export function CodeEditor({
     }))
   );
 
-  // Update line count when code changes
-  useEffect(() => {
-    const lines = code.split('\n').length;
-    setLineCount(lines);
-    setShowWarning(lines >= WARNING_THRESHOLD);
-  }, [code]);
+  // Compute line count and warning from code
+  const lineCount = useMemo(() => code.split('\n').length, [code]);
+  const showWarning = lineCount >= WARNING_THRESHOLD;
 
   // Update gutter decorations when threads change
   useEffect(() => {
@@ -141,14 +135,6 @@ export function CodeEditor({
         selectionModeDecorationsRef.current,
         []
       );
-      setPendingSelection(null);
-    }
-  }, [selectionMode]);
-
-  // Track selection changes when in selection mode
-  useEffect(() => {
-    if (!selectionMode) {
-      setPendingSelection(null);
     }
   }, [selectionMode]);
 

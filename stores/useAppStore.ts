@@ -305,7 +305,7 @@ export const useAppStore = create<AppStore>()(
         let adjustedSuggestionLines = suggestedLines;
         if (baseIndent && baseIndent !== suggestionIndent) {
           // Calculate the difference and adjust each line
-          adjustedSuggestionLines = suggestedLines.map((line, index) => {
+          adjustedSuggestionLines = suggestedLines.map((line) => {
             if (line.trim() === '') return line; // Keep empty lines as-is
             // Remove suggestion's indent and add base indent
             const lineWithoutIndent = line.replace(/^\s*/, '');
@@ -412,6 +412,7 @@ export function useHydration() {
     });
 
     // Also check if already hydrated (in case effect runs after hydration)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHydrated(useAppStore.persist.hasHydrated());
 
     return () => {
