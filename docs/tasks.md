@@ -281,53 +281,53 @@ This document outlines the implementation tasks for AI Code Review. Tasks are or
 ## Phase 8: Header, Export & Polish
 
 ### 8.1 App Header
-- [ ] Create `AppHeader` component
-- [ ] Display "AI Code Review" title
-- [ ] File name (editable inline)
-- [ ] Language indicator badge
-- [ ] Theme toggle (sun/moon icons)
-- [ ] Export button
-- [ ] Copy code button
-- [ ] Clear session button
+- [x] Create `AppHeader` component
+- [x] Display "AI Code Review" title
+- [x] File name (editable inline)
+- [x] Language indicator badge
+- [x] Theme toggle (sun/moon icons)
+- [x] Export button
+- [x] Copy code button
+- [x] Clear session button
 
 ### 8.2 Theme Toggle
-- [ ] Create `ThemeToggle` component
-- [ ] Toggle between dark/light
-- [ ] Update Monaco theme
-- [ ] Persist preference
-- [ ] Apply Tailwind dark mode
+- [x] Create `ThemeToggle` component
+- [x] Toggle between dark/light
+- [x] Update Monaco theme
+- [x] Persist preference
+- [x] Apply Tailwind dark mode
 
 ### 8.3 Export Threads
-- [ ] Create `markdown.ts` export utility
-- [ ] Format threads oldest to newest
-- [ ] Include: line range, user prompts, AI responses
-- [ ] Include code suggestions (applied or not)
-- [ ] Trigger download as `.md` file
+- [x] Create `markdown.ts` export utility
+- [x] Format threads oldest to newest
+- [x] Include: line range, user prompts, AI responses
+- [x] Include code suggestions (applied or not)
+- [x] Trigger download as `.md` file
 
 ### 8.4 Copy Code
-- [ ] Create copy-to-clipboard function
-- [ ] Copy current code state
-- [ ] Show toast/confirmation on success
+- [x] Create copy-to-clipboard function
+- [x] Copy current code state
+- [x] Show toast/confirmation on success
 
 ### 8.5 Clear Session
-- [ ] Create `ConfirmDialog` component
-- [ ] Show confirmation before clearing
-- [ ] Clear store and localStorage
-- [ ] Reset to empty state
+- [x] Create `ConfirmDialog` component
+- [x] Show confirmation before clearing
+- [x] Clear store and localStorage
+- [x] Reset to empty state
 
 ### 8.6 Outdated Detection
-- [ ] Compare current code at line range to stored original
-- [ ] Mark thread as outdated if different
-- [ ] Trigger on any code change
-- [ ] Efficient diffing (avoid unnecessary checks)
+- [x] Compare current code at line range to stored original
+- [x] Mark thread as outdated if different
+- [x] Trigger on any code change
+- [x] Efficient diffing (avoid unnecessary checks)
 
 ### 8.7 Update Selection Flow
-- [ ] Enter "selection mode" from kebab menu
-- [ ] Highlight current (stale) selection
-- [ ] User selects new range
-- [ ] Update thread line range
-- [ ] Clear outdated status
-- [ ] Exit selection mode
+- [x] Enter "selection mode" from kebab menu
+- [x] Highlight current (stale) selection
+- [x] User selects new range
+- [x] Update thread line range
+- [x] Clear outdated status
+- [x] Exit selection mode
 
 **Phase 8 Deliverable:** Complete application with all features.
 
@@ -422,9 +422,9 @@ Phase 9 (Testing & Deployment)
 ## Progress Tracking
 
 **Started:** 2025-11-28
-**Current Phase:** Phase 7 Complete
-**Completed Phases:** Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 6, Phase 7
+**Current Phase:** Phase 8 Complete
+**Completed Phases:** Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 6, Phase 7, Phase 8
 
 ---
 
-_Last updated: 2025-11-29 - Completed Phase 7 (Code Suggestions & Diff View)_
+_Last updated: 2025-11-29 - Completed Phase 8 (Header, Export & Polish)_
