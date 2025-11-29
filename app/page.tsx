@@ -1,12 +1,21 @@
 'use client';
 
-import { useState } from 'react';
-import { CodeEditor, SelectionRange } from '@/components';
+import { useState, useCallback } from 'react';
+import { CodeEditor, SelectionRange, ThreadPanel } from '@/components';
 import { useHydration } from '@/stores';
 
 export default function Home() {
   const hydrated = useHydration();
   const [selection, setSelection] = useState<SelectionRange | null>(null);
+  const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
+
+  const handleThreadClick = useCallback((threadId: string) => {
+    setActiveThreadId(threadId);
+  }, []);
+
+  const handleGutterClick = useCallback((threadId: string) => {
+    setActiveThreadId(threadId);
+  }, []);
 
   // Show loading state during hydration to prevent mismatch
   if (!hydrated) {
@@ -33,14 +42,15 @@ export default function Home() {
       <div className="flex flex-1 overflow-hidden">
         {/* Editor panel */}
         <main className="flex-1 overflow-hidden">
-          <CodeEditor onSelectionChange={setSelection} />
+          <CodeEditor
+            onSelectionChange={setSelection}
+            onGutterClick={handleGutterClick}
+          />
         </main>
 
-        {/* Thread panel placeholder - will be implemented in Phase 4 */}
-        <aside className="hidden w-80 shrink-0 border-l border-zinc-800 lg:block">
-          <div className="flex h-full items-center justify-center text-zinc-600">
-            <p className="text-sm">Thread panel (Phase 4)</p>
-          </div>
+        {/* Thread panel */}
+        <aside className="hidden lg:block">
+          <ThreadPanel onThreadClick={handleThreadClick} />
         </aside>
       </div>
     </div>

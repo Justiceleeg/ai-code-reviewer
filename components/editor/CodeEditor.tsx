@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useRef, useState, useEffect } from 'react';
-import Editor, { OnMount, OnChange } from '@monaco-editor/react';
+import Editor, { OnMount, OnChange, Monaco } from '@monaco-editor/react';
 import type { editor } from 'monaco-editor';
 import { useShallow } from 'zustand/react/shallow';
 import { useAppStore } from '@/stores';
@@ -17,19 +17,23 @@ export interface SelectionRange {
 
 interface CodeEditorProps {
   onSelectionChange?: (selection: SelectionRange | null) => void;
+  onGutterClick?: (threadId: string) => void;
 }
 
-export function CodeEditor({ onSelectionChange }: CodeEditorProps) {
+export function CodeEditor({ onSelectionChange, onGutterClick }: CodeEditorProps) {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const monacoRef = useRef<Monaco | null>(null);
+  const decorationsRef = useRef<string[]>([]);
   const [lineCount, setLineCount] = useState(0);
   const [showWarning, setShowWarning] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
-  const { code, language, theme, setCode, setLanguage, setFileName } = useAppStore(
+  const { code, language, theme, threads, setCode, setLanguage, setFileName } = useAppStore(
     useShallow((state) => ({
       code: state.editor.code,
       language: state.editor.language,
       theme: state.theme,
+      threads: state.threads,
       setCode: state.setCode,
       setLanguage: state.setLanguage,
       setFileName: state.setFileName,
@@ -43,9 +47,107 @@ export function CodeEditor({ onSelectionChange }: CodeEditorProps) {
     setShowWarning(lines >= WARNING_THRESHOLD);
   }, [code]);
 
+  // Update gutter decorations when threads change
+  useEffect(() => {
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+    if (!editor || !monaco) return;
+
+    // Create decorations for each thread
+    const newDecorations: editor.IModelDeltaDecoration[] = threads.map((thread) => {
+      const glyphClass =
+        thread.status === 'active'
+          ? 'thread-glyph-active'
+          : thread.status === 'outdated'
+            ? 'thread-glyph-outdated'
+            : 'thread-glyph-resolved';
+
+      const lineClass =
+        thread.status === 'active'
+          ? 'thread-line-active'
+          : thread.status === 'outdated'
+            ? 'thread-line-outdated'
+            : 'thread-line-resolved';
+
+      return {
+        range: new monaco.Range(thread.startLine, 1, thread.endLine, 1),
+        options: {
+          isWholeLine: true,
+          glyphMarginClassName: glyphClass,
+          className: lineClass,
+          glyphMarginHoverMessage: {
+            value: `Thread: Lines ${thread.startLine}-${thread.endLine} (${thread.status})`,
+          },
+        },
+      };
+    });
+
+    // Apply decorations
+    decorationsRef.current = editor.deltaDecorations(decorationsRef.current, newDecorations);
+  }, [threads]);
+
   const handleEditorMount: OnMount = useCallback(
-    (editor) => {
+    (editor, monaco) => {
       editorRef.current = editor;
+      monacoRef.current = monaco;
+
+      // Add custom CSS for gutter markers
+      const styleEl = document.getElementById('thread-gutter-styles') || document.createElement('style');
+      styleEl.id = 'thread-gutter-styles';
+      styleEl.textContent = `
+        .thread-glyph-active {
+          background-color: #10b981;
+          border-radius: 50%;
+          margin-left: 5px;
+          width: 8px !important;
+          height: 8px !important;
+          margin-top: 6px;
+        }
+        .thread-glyph-outdated {
+          background-color: #eab308;
+          border-radius: 50%;
+          margin-left: 5px;
+          width: 8px !important;
+          height: 8px !important;
+          margin-top: 6px;
+        }
+        .thread-glyph-resolved {
+          background-color: #71717a;
+          border-radius: 50%;
+          margin-left: 5px;
+          width: 8px !important;
+          height: 8px !important;
+          margin-top: 6px;
+        }
+        .thread-line-active {
+          background-color: rgba(16, 185, 129, 0.1);
+        }
+        .thread-line-outdated {
+          background-color: rgba(234, 179, 8, 0.1);
+        }
+        .thread-line-resolved {
+          background-color: rgba(113, 113, 122, 0.05);
+        }
+      `;
+      if (!document.getElementById('thread-gutter-styles')) {
+        document.head.appendChild(styleEl);
+      }
+
+      // Gutter click handler
+      editor.onMouseDown((e) => {
+        if (e.target.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN) {
+          const lineNumber = e.target.position?.lineNumber;
+          if (lineNumber) {
+            // Find thread at this line
+            const thread = threads.find(
+              (t) => lineNumber >= t.startLine && lineNumber <= t.endLine
+            );
+            if (thread) {
+              onGutterClick?.(thread.id);
+            }
+          }
+        }
+      });
 
       // Selection change listener
       editor.onDidChangeCursorSelection((e) => {
@@ -70,7 +172,7 @@ export function CodeEditor({ onSelectionChange }: CodeEditorProps) {
         }
       }
     },
-    [code, language, setLanguage, onSelectionChange]
+    [code, language, threads, setLanguage, onSelectionChange, onGutterClick]
   );
 
   const handleChange: OnChange = useCallback(

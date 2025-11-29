@@ -118,50 +118,50 @@ This document outlines the implementation tasks for AI Code Review. Tasks are or
 ## Phase 4: Thread Panel
 
 ### 4.1 Panel Layout
-- [ ] Create `ThreadPanel` component (right side)
-- [ ] Implement resizable width (drag handle)
-- [ ] Store panel width preference
-- [ ] Handle collapsed/expanded panel state
+- [x] Create `ThreadPanel` component (right side)
+- [x] Implement resizable width (drag handle)
+- [x] Store panel width preference
+- [x] Handle collapsed/expanded panel state
 
 ### 4.2 Thread List
-- [ ] Create `ThreadList` component
-- [ ] Sort threads by start line number
-- [ ] Render `ThreadItem` for each thread
-- [ ] Handle empty state (no threads yet)
+- [x] Create `ThreadList` component
+- [x] Sort threads by start line number
+- [x] Render `ThreadItem` for each thread
+- [x] Handle empty state (no threads yet)
 
 ### 4.3 Thread Item (Collapsed)
-- [ ] Create `ThreadItem` component
-- [ ] Display line range ("Lines 5-12")
-- [ ] Display message count
-- [ ] Show status indicator (active/outdated/resolved)
-- [ ] Yellow banner for outdated (visible when collapsed)
-- [ ] Distinct styling for resolved
-- [ ] Click to expand
+- [x] Create `ThreadItem` component
+- [x] Display line range ("Lines 5-12")
+- [x] Display message count
+- [x] Show status indicator (active/outdated/resolved)
+- [x] Yellow banner for outdated (visible when collapsed)
+- [x] Distinct styling for resolved
+- [x] Click to expand
 
 ### 4.4 Thread Item (Expanded)
-- [ ] Show full message history
-- [ ] Render `ThreadMessage` for each message
-- [ ] Show text input for follow-up
-- [ ] Show kebab menu (three dots)
-- [ ] Scroll to bottom on new messages
+- [x] Show full message history
+- [x] Render `ThreadMessage` for each message
+- [x] Show text input for follow-up
+- [x] Show kebab menu (three dots)
+- [x] Scroll to bottom on new messages
 
 ### 4.5 Thread Message
-- [ ] Create `ThreadMessage` component
-- [ ] Style user messages vs AI messages
-- [ ] Render markdown in AI responses
-- [ ] Show typing indicator during streaming
-- [ ] Show retry button on error
+- [x] Create `ThreadMessage` component
+- [x] Style user messages vs AI messages
+- [x] Render markdown in AI responses
+- [x] Show typing indicator during streaming
+- [x] Show retry button on error
 
 ### 4.6 Kebab Menu
-- [ ] Create kebab menu dropdown
-- [ ] "Resolve" option (always visible)
-- [ ] "Update Selection" option (outdated threads only)
-- [ ] Handle menu positioning
+- [x] Create kebab menu dropdown
+- [x] "Resolve" option (always visible)
+- [x] "Update Selection" option (outdated threads only)
+- [x] Handle menu positioning
 
 ### 4.7 Gutter Markers
-- [ ] Add visual indicators in editor gutter for threads
-- [ ] Color-code by status (active/outdated/resolved)
-- [ ] Click gutter marker to scroll panel to thread
+- [x] Add visual indicators in editor gutter for threads
+- [x] Color-code by status (active/outdated/resolved)
+- [x] Click gutter marker to scroll panel to thread
 
 **Phase 4 Deliverable:** Complete thread panel with all states and interactions (no AI yet).
 
@@ -426,9 +426,9 @@ Phase 9 (Testing & Deployment)
 ## Progress Tracking
 
 **Started:** 2025-11-28
-**Current Phase:** Phase 3 Complete
-**Completed Phases:** Phase 1, Phase 2, Phase 3
+**Current Phase:** Phase 4 Complete
+**Completed Phases:** Phase 1, Phase 2, Phase 3, Phase 4
 
 ---
 
-_Last updated: 2025-11-28 - Phase 3 complete_
+_Last updated: 2025-11-28 - Phase 4 complete_
