@@ -41,37 +41,37 @@ This document outlines the implementation tasks for AI Code Review. Tasks are or
 ## Phase 2: Type Definitions & Store
 
 ### 2.1 Core Types
-- [ ] Define `Thread` interface
-- [ ] Define `Message` interface
-- [ ] Define `CodeSuggestion` interface
-- [ ] Define `EditorState` interface
-- [ ] Define `AppState` interface
-- [ ] Define `ThreadStatus` type ('active' | 'outdated' | 'resolved')
-- [ ] Define `ReviewAction` type ('explain' | 'bugs' | 'improve' | 'custom')
+- [x] Define `Thread` interface
+- [x] Define `Message` interface
+- [x] Define `CodeSuggestion` interface
+- [x] Define `EditorState` interface
+- [x] Define `AppState` interface
+- [x] Define `ThreadStatus` type ('active' | 'outdated' | 'resolved')
+- [x] Define `ReviewAction` type ('explain' | 'bugs' | 'improve' | 'custom')
 
 ### 2.2 Zustand Store
-- [ ] Create `useAppStore` with initial state
-- [ ] Implement editor state actions:
+- [x] Create `useAppStore` with initial state
+- [x] Implement editor state actions:
   - `setCode(code: string)`
   - `setLanguage(language: string)`
   - `setFileName(fileName: string)`
-- [ ] Implement thread actions:
+- [x] Implement thread actions:
   - `createThread(startLine, endLine, action, customPrompt?)`
   - `addMessage(threadId, message)`
   - `updateThreadStatus(threadId, status)`
   - `updateThreadSelection(threadId, startLine, endLine)`
   - `resolveThread(threadId)`
-- [ ] Implement suggestion actions:
+- [x] Implement suggestion actions:
   - `applySuggestion(threadId, messageId, suggestionId)`
-- [ ] Implement session actions:
+- [x] Implement session actions:
   - `clearSession()`
   - `setTheme(theme)`
 
 ### 2.3 localStorage Persistence
-- [ ] Create localStorage middleware for Zustand
-- [ ] Implement state hydration on app load
-- [ ] Handle hydration mismatch (SSR vs client)
-- [ ] Test persistence across page refreshes
+- [x] Create localStorage middleware for Zustand
+- [x] Implement state hydration on app load
+- [x] Handle hydration mismatch (SSR vs client)
+- [x] Test persistence across page refreshes
 
 **Phase 2 Deliverable:** Fully typed store with persistence, no UI yet.
 
@@ -425,10 +425,10 @@ Phase 9 (Testing & Deployment)
 
 ## Progress Tracking
 
-**Started:** _Not yet_
-**Current Phase:** _N/A_
-**Completed Phases:** _None_
+**Started:** 2025-11-28
+**Current Phase:** Phase 2 Complete
+**Completed Phases:** Phase 1, Phase 2
 
 ---
 
-_Last updated: Initial creation_
+_Last updated: 2025-11-28 - Phase 2 complete_
