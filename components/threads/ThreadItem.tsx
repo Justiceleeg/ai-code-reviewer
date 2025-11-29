@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useAppStore } from '@/stores';
+import { useReview } from '@/lib/ai';
 import type { Thread } from '@/types';
 import { ThreadMessage } from './ThreadMessage';
 import { ThreadInput } from './ThreadInput';
@@ -11,9 +12,15 @@ interface ThreadItemProps {
   thread: Thread;
   isActive?: boolean;
   onClick?: () => void;
+  streamingMessageId?: string | null;
 }
 
-export function ThreadItem({ thread, isActive = false, onClick }: ThreadItemProps) {
+export function ThreadItem({
+  thread,
+  isActive = false,
+  onClick,
+  streamingMessageId,
+}: ThreadItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const threadRef = useRef<HTMLDivElement>(null);
@@ -32,6 +39,7 @@ export function ThreadItem({ thread, isActive = false, onClick }: ThreadItemProp
   const resolveThread = useAppStore((state) => state.resolveThread);
   const deleteThread = useAppStore((state) => state.deleteThread);
   const addMessage = useAppStore((state) => state.addMessage);
+  const { startReview, isStreaming } = useReview();
 
   const isOutdated = thread.status === 'outdated';
   const isResolved = thread.status === 'resolved';
@@ -69,9 +77,16 @@ export function ThreadItem({ thread, isActive = false, onClick }: ThreadItemProp
         role: 'user',
         content: message,
       });
-      // AI response will be triggered in Phase 6
+
+      // Trigger AI response for follow-up
+      startReview({
+        threadId: thread.id,
+        action: 'custom',
+        customPrompt: message,
+        isFollowUp: true,
+      });
     },
-    [addMessage, thread.id]
+    [addMessage, thread.id, startReview]
   );
 
   // Collapsed view
@@ -183,7 +198,11 @@ export function ThreadItem({ thread, isActive = false, onClick }: ThreadItemProp
       {/* Messages */}
       <div className="max-h-80 overflow-y-auto">
         {thread.messages.map((message) => (
-          <ThreadMessage key={message.id} message={message} />
+          <ThreadMessage
+            key={message.id}
+            message={message}
+            isStreaming={streamingMessageId === message.id}
+          />
         ))}
         <div ref={messagesEndRef} />
       </div>
@@ -193,6 +212,7 @@ export function ThreadItem({ thread, isActive = false, onClick }: ThreadItemProp
         <ThreadInput
           onSubmit={handleFollowUp}
           placeholder="Ask a follow-up question..."
+          disabled={isStreaming}
         />
       )}
     </div>

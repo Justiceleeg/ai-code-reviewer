@@ -43,7 +43,9 @@ interface AppActions {
     action: ReviewAction,
     customPrompt?: string
   ) => string;
-  addMessage: (threadId: string, message: Omit<Message, 'id' | 'createdAt'>) => void;
+  addMessage: (threadId: string, message: Omit<Message, 'id' | 'createdAt'>) => string;
+  updateMessageContent: (threadId: string, messageId: string, content: string) => void;
+  setMessageSuggestions: (threadId: string, messageId: string, suggestions: Message['suggestions']) => void;
   updateThreadStatus: (threadId: string, status: ThreadStatus) => void;
   updateThreadSelection: (threadId: string, startLine: number, endLine: number) => void;
   resolveThread: (threadId: string) => void;
@@ -163,9 +165,10 @@ export const useAppStore = create<AppStore>()(
       },
 
       addMessage: (threadId: string, message: Omit<Message, 'id' | 'createdAt'>) => {
+        const messageId = generateId();
         const newMessage: Message = {
           ...message,
-          id: generateId(),
+          id: messageId,
           createdAt: new Date(),
         };
 
@@ -173,6 +176,42 @@ export const useAppStore = create<AppStore>()(
           threads: state.threads.map((thread) =>
             thread.id === threadId
               ? { ...thread, messages: [...thread.messages, newMessage] }
+              : thread
+          ),
+        }));
+
+        return messageId;
+      },
+
+      updateMessageContent: (threadId: string, messageId: string, content: string) => {
+        set((state) => ({
+          threads: state.threads.map((thread) =>
+            thread.id === threadId
+              ? {
+                  ...thread,
+                  messages: thread.messages.map((msg) =>
+                    msg.id === messageId ? { ...msg, content } : msg
+                  ),
+                }
+              : thread
+          ),
+        }));
+      },
+
+      setMessageSuggestions: (
+        threadId: string,
+        messageId: string,
+        suggestions: Message['suggestions']
+      ) => {
+        set((state) => ({
+          threads: state.threads.map((thread) =>
+            thread.id === threadId
+              ? {
+                  ...thread,
+                  messages: thread.messages.map((msg) =>
+                    msg.id === messageId ? { ...msg, suggestions } : msg
+                  ),
+                }
               : thread
           ),
         }));

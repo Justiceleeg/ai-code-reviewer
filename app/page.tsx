@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import { CodeEditor, SelectionRange, ContextMenuEvent, ContextMenu, ThreadPanel } from '@/components';
 import { useHydration, useAppStore } from '@/stores';
+import { useReview } from '@/lib/ai';
 import type { ReviewAction } from '@/types';
 
 interface ContextMenuState {
@@ -18,6 +19,7 @@ export default function Home() {
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
 
   const createThread = useAppStore((state) => state.createThread);
+  const { startReview, isStreaming, activeMessageId } = useReview();
 
   const handleThreadClick = useCallback((threadId: string) => {
     setActiveThreadId(threadId);
@@ -53,8 +55,16 @@ export default function Home() {
       // Set the new thread as active and scroll to it
       setActiveThreadId(threadId);
       setContextMenu(null);
+
+      // Trigger AI review
+      startReview({
+        threadId,
+        action,
+        customPrompt,
+        isFollowUp: false,
+      });
     },
-    [contextMenu, createThread]
+    [contextMenu, createThread, startReview]
   );
 
   // Show loading state during hydration to prevent mismatch
@@ -94,6 +104,7 @@ export default function Home() {
           <ThreadPanel
             onThreadClick={handleThreadClick}
             activeThreadId={activeThreadId}
+            streamingMessageId={activeMessageId}
           />
         </aside>
       </div>

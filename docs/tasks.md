@@ -194,7 +194,7 @@ This document outlines the implementation tasks for AI Code Review. Tasks are or
 - [x] Capture selected code range
 - [x] Store original code text (for outdated detection)
 - [x] Scroll panel to new thread
-- [ ] Trigger AI request
+- [x] Trigger AI request
 
 **Phase 5 Deliverable:** Right-click menu that creates threads and triggers AI (AI integration in next phase).
 
@@ -203,49 +203,44 @@ This document outlines the implementation tasks for AI Code Review. Tasks are or
 ## Phase 6: AI Integration
 
 ### 6.1 API Route Setup
-- [ ] Create `POST /api/review` route handler
-- [ ] Validate request body
-- [ ] Set up Vercel AI SDK with OpenAI provider
-- [ ] Handle errors gracefully
+- [x] Create `POST /api/review` route handler
+- [x] Validate request body (action, code, selection, threadHistory)
+- [x] Use `streamText()` from Vercel AI SDK with OpenAI provider
+- [x] Return `result.toTextStreamResponse()` for automatic streaming
+- [x] Handle errors gracefully (invalid API key, rate limits)
 
 ### 6.2 Prompt Engineering
-- [ ] Create `prompts.ts` with system prompts
-- [ ] Create prompt templates for each action:
-  - Explain: focus on clarity
-  - Find bugs: identify issues, optionally suggest fixes
-  - Improve: suggest improvements or confirm "looks good"
-  - Custom: user's question
-- [ ] Include context: selected code, full file, language
-- [ ] Include thread history for follow-ups
-- [ ] Instruct AI on code suggestion format
+- [x] Create `prompts.ts` with system prompt and action templates
+- [x] Define prompt for each action:
+  - Explain: clear explanation of what the code does
+  - Find bugs: identify issues with optional fix suggestions
+  - Improve: suggest improvements or confirm code looks good
+  - Custom: answer user's specific question
+- [x] Include context in user message: selected code, full file (truncated if needed), language
+- [x] Format thread history as conversation messages for follow-ups
+- [x] Instruct AI to wrap code suggestions in markdown code blocks with `suggestion` label
 
-### 6.3 Streaming Response
-- [ ] Implement streaming in route handler
-- [ ] Use `ReadableStream` for SSE
-- [ ] Parse streaming chunks on client
-- [ ] Update message content incrementally
-- [ ] Handle stream completion
+### 6.3 Client Integration
+- [x] Create `useReview` hook using custom fetch with stream handling
+- [x] Stream response text directly into message content in store
+- [x] Handle loading state (isStreaming flag)
+- [x] Handle error state with retry capability
+- [x] Abort in-flight requests on new request or unmount
 
-### 6.4 Response Parsing
-- [ ] Create `parseResponse.ts` utility
-- [ ] Extract code suggestions from response
-- [ ] Parse multiple alternatives
-- [ ] Structure into `CodeSuggestion` objects
-- [ ] Handle responses with no suggestions
+### 6.4 Response Parsing (Post-Stream)
+- [x] Create `parseSuggestions.ts` utility
+- [x] Extract code blocks marked as suggestions from completed response
+- [x] Support multiple suggestion alternatives (numbered or separate blocks)
+- [x] Structure into `CodeSuggestion` objects with original/suggested code
+- [x] Handle responses with no code suggestions (explanation only)
 
-### 6.5 Client Integration
-- [ ] Create `useReview` hook for API calls
-- [ ] Handle loading state
-- [ ] Handle error state with retry
-- [ ] Prevent duplicate requests
-- [ ] Cancel on unmount
+### 6.5 Thread Integration
+- [x] Trigger AI request on thread creation (from context menu)
+- [x] Add streaming message to thread immediately (empty, then fill)
+- [x] Parse suggestions after stream completes, attach to message
+- [x] Support follow-up messages with full thread history as context
 
-### 6.6 Follow-up Messages
-- [ ] Send thread history with follow-up requests
-- [ ] Maintain conversation context
-- [ ] Handle "resolved" keyword in user message
-
-**Phase 6 Deliverable:** Working AI integration with streaming responses.
+**Phase 6 Deliverable:** Working AI integration with streaming responses and parsed suggestions.
 
 ---
 
@@ -276,9 +271,8 @@ This document outlines the implementation tasks for AI Code Review. Tasks are or
 - [ ] Handle edge cases (empty lines, whitespace)
 
 ### 7.5 Outside Recommendations
-- [ ] Parse AI notes about changes outside selection
-- [ ] Display as info banner in thread
-- [ ] Non-actionable (informational only)
+- [ ] Display AI notes about changes outside selection as info banner
+- [ ] Non-actionable (informational only, parsed in Phase 6.4)
 
 **Phase 7 Deliverable:** Full suggestion flow with diff preview and apply.
 
@@ -419,17 +413,18 @@ Phase 9 (Testing & Deployment)
 
 1. **Monaco SSR** - Monaco doesn't support SSR; use dynamic imports with `ssr: false`
 2. **Hydration** - Zustand persist middleware needs hydration handling
-3. **Streaming** - Use Web Streams API for SSE responses
+3. **AI SDK Streaming** - Use Vercel AI SDK's `streamText()` and `toDataStreamResponse()` - no manual SSE needed
 4. **Selection state** - Monaco selection events fire frequently; debounce if needed
+5. **Suggestion Parsing** - Parse code suggestions from markdown after stream completes, not during
 
 ---
 
 ## Progress Tracking
 
 **Started:** 2025-11-28
-**Current Phase:** Phase 5 Complete
-**Completed Phases:** Phase 1, Phase 2, Phase 3, Phase 4, Phase 5
+**Current Phase:** Phase 6 Complete
+**Completed Phases:** Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 6
 
 ---
 
-_Last updated: 2025-11-29 - Phase 5 complete (context menu & thread creation)_
+_Last updated: 2025-11-29 - Completed Phase 6 (AI Integration with Vercel AI SDK)_

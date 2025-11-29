@@ -8,9 +8,10 @@ import { ThreadItem } from './ThreadItem';
 interface ThreadListProps {
   onThreadClick?: (threadId: string) => void;
   activeThreadId?: string | null;
+  streamingMessageId?: string | null;
 }
 
-export function ThreadList({ onThreadClick, activeThreadId }: ThreadListProps) {
+export function ThreadList({ onThreadClick, activeThreadId, streamingMessageId }: ThreadListProps) {
   const threads = useAppStore(useShallow((state) => state.threads));
 
   // Sort threads by start line number
@@ -40,6 +41,7 @@ export function ThreadList({ onThreadClick, activeThreadId }: ThreadListProps) {
           thread={thread}
           isActive={thread.id === activeThreadId}
           onClick={() => onThreadClick?.(thread.id)}
+          streamingMessageId={streamingMessageId}
         />
       ))}
     </div>

@@ -10,9 +10,10 @@ const DEFAULT_WIDTH = 320;
 interface ThreadPanelProps {
   onThreadClick?: (threadId: string) => void;
   activeThreadId?: string | null;
+  streamingMessageId?: string | null;
 }
 
-export function ThreadPanel({ onThreadClick, activeThreadId }: ThreadPanelProps) {
+export function ThreadPanel({ onThreadClick, activeThreadId, streamingMessageId }: ThreadPanelProps) {
   const [width, setWidth] = useState(() => {
     if (typeof window === 'undefined') return DEFAULT_WIDTH;
     const saved = localStorage.getItem('thread-panel-width');
@@ -119,7 +120,11 @@ export function ThreadPanel({ onThreadClick, activeThreadId }: ThreadPanelProps)
 
       {/* Thread list */}
       <div className="flex-1 overflow-y-auto">
-        <ThreadList onThreadClick={onThreadClick} activeThreadId={activeThreadId} />
+        <ThreadList
+          onThreadClick={onThreadClick}
+          activeThreadId={activeThreadId}
+          streamingMessageId={streamingMessageId}
+        />
       </div>
     </div>
   );
