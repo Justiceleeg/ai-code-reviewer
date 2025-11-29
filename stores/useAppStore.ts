@@ -47,6 +47,7 @@ interface AppActions {
   updateThreadStatus: (threadId: string, status: ThreadStatus) => void;
   updateThreadSelection: (threadId: string, startLine: number, endLine: number) => void;
   resolveThread: (threadId: string) => void;
+  deleteThread: (threadId: string) => void;
 
   // Suggestion actions
   applySuggestion: (threadId: string, messageId: string, suggestionId: string) => void;
@@ -209,6 +210,11 @@ export const useAppStore = create<AppStore>()(
           threads: state.threads.map((thread) =>
             thread.id === threadId ? { ...thread, status: 'resolved' as ThreadStatus } : thread
           ),
+        })),
+
+      deleteThread: (threadId: string) =>
+        set((state) => ({
+          threads: state.threads.filter((thread) => thread.id !== threadId),
         })),
 
       // Suggestion actions

@@ -30,6 +30,7 @@ export function ThreadItem({ thread, isActive = false, onClick }: ThreadItemProp
   }, [isActive]);
 
   const resolveThread = useAppStore((state) => state.resolveThread);
+  const deleteThread = useAppStore((state) => state.deleteThread);
   const addMessage = useAppStore((state) => state.addMessage);
 
   const isOutdated = thread.status === 'outdated';
@@ -51,6 +52,10 @@ export function ThreadItem({ thread, isActive = false, onClick }: ThreadItemProp
   const handleResolve = useCallback(() => {
     resolveThread(thread.id);
   }, [resolveThread, thread.id]);
+
+  const handleDelete = useCallback(() => {
+    deleteThread(thread.id);
+  }, [deleteThread, thread.id]);
 
   const handleUpdateSelection = useCallback(() => {
     // This will be implemented in Phase 8 (Update Selection Flow)
@@ -141,6 +146,7 @@ export function ThreadItem({ thread, isActive = false, onClick }: ThreadItemProp
             <div onClick={(e) => e.stopPropagation()}>
               <KebabMenu
                 onResolve={handleResolve}
+                onDelete={handleDelete}
                 onUpdateSelection={handleUpdateSelection}
                 showUpdateSelection={isOutdated}
               />

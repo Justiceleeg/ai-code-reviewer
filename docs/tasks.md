@@ -157,6 +157,7 @@ This document outlines the implementation tasks for AI Code Review. Tasks are or
 - [x] "Resolve" option (always visible)
 - [x] "Update Selection" option (outdated threads only)
 - [x] Handle menu positioning
+- [x] "Delete" option to remove thread entirely
 
 ### 4.7 Gutter Markers
 - [x] Add visual indicators in editor gutter for threads
