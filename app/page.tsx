@@ -1,13 +1,23 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { CodeEditor, SelectionRange, ThreadPanel } from '@/components';
-import { useHydration } from '@/stores';
+import { CodeEditor, SelectionRange, ContextMenuEvent, ContextMenu, ThreadPanel } from '@/components';
+import { useHydration, useAppStore } from '@/stores';
+import type { ReviewAction } from '@/types';
+
+interface ContextMenuState {
+  x: number;
+  y: number;
+  selection: SelectionRange;
+}
 
 export default function Home() {
   const hydrated = useHydration();
   const [selection, setSelection] = useState<SelectionRange | null>(null);
   const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
+  const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
+
+  const createThread = useAppStore((state) => state.createThread);
 
   const handleThreadClick = useCallback((threadId: string) => {
     setActiveThreadId(threadId);
@@ -16,6 +26,36 @@ export default function Home() {
   const handleGutterClick = useCallback((threadId: string) => {
     setActiveThreadId(threadId);
   }, []);
+
+  const handleContextMenu = useCallback((event: ContextMenuEvent) => {
+    setContextMenu({
+      x: event.x,
+      y: event.y,
+      selection: event.selection,
+    });
+  }, []);
+
+  const handleContextMenuClose = useCallback(() => {
+    setContextMenu(null);
+  }, []);
+
+  const handleContextMenuAction = useCallback(
+    (action: ReviewAction, customPrompt?: string) => {
+      if (!contextMenu) return;
+
+      const threadId = createThread(
+        contextMenu.selection.startLine,
+        contextMenu.selection.endLine,
+        action,
+        customPrompt
+      );
+
+      // Set the new thread as active and scroll to it
+      setActiveThreadId(threadId);
+      setContextMenu(null);
+    },
+    [contextMenu, createThread]
+  );
 
   // Show loading state during hydration to prevent mismatch
   if (!hydrated) {
@@ -45,14 +85,28 @@ export default function Home() {
           <CodeEditor
             onSelectionChange={setSelection}
             onGutterClick={handleGutterClick}
+            onContextMenu={handleContextMenu}
           />
         </main>
 
         {/* Thread panel */}
         <aside className="hidden lg:block">
-          <ThreadPanel onThreadClick={handleThreadClick} />
+          <ThreadPanel
+            onThreadClick={handleThreadClick}
+            activeThreadId={activeThreadId}
+          />
         </aside>
       </div>
+
+      {/* Context menu */}
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onAction={handleContextMenuAction}
+          onClose={handleContextMenuClose}
+        />
+      )}
     </div>
   );
 }

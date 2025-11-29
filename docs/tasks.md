@@ -170,29 +170,29 @@ This document outlines the implementation tasks for AI Code Review. Tasks are or
 ## Phase 5: Context Menu & Thread Creation
 
 ### 5.1 Context Menu Component
-- [ ] Create `ContextMenu` component
-- [ ] Position near right-click location
-- [ ] Close on click outside
-- [ ] Close on escape key
+- [x] Create `ContextMenu` component
+- [x] Position near right-click location
+- [x] Close on click outside
+- [x] Close on escape key
 
 ### 5.2 Menu Options
-- [ ] "Explain" option
-- [ ] "Find bugs" option
-- [ ] "Improve" option
-- [ ] "Custom..." option (opens input)
-- [ ] Disable menu when no selection
+- [x] "Explain" option
+- [x] "Find bugs" option
+- [x] "Improve" option
+- [x] "Custom..." option (opens input)
+- [x] Disable menu when no selection
 
 ### 5.3 Custom Prompt Input
-- [ ] Create inline input for custom prompts
-- [ ] Auto-focus on open
-- [ ] Submit on Enter
-- [ ] Cancel on Escape
+- [x] Create inline input for custom prompts
+- [x] Auto-focus on open
+- [x] Submit on Enter
+- [x] Cancel on Escape
 
 ### 5.4 Thread Creation Flow
-- [ ] On menu action, create new thread in store
-- [ ] Capture selected code range
-- [ ] Store original code text (for outdated detection)
-- [ ] Scroll panel to new thread
+- [x] On menu action, create new thread in store
+- [x] Capture selected code range
+- [x] Store original code text (for outdated detection)
+- [x] Scroll panel to new thread
 - [ ] Trigger AI request
 
 **Phase 5 Deliverable:** Right-click menu that creates threads and triggers AI (AI integration in next phase).
@@ -426,9 +426,9 @@ Phase 9 (Testing & Deployment)
 ## Progress Tracking
 
 **Started:** 2025-11-28
-**Current Phase:** Phase 4 Complete
-**Completed Phases:** Phase 1, Phase 2, Phase 3, Phase 4
+**Current Phase:** Phase 5 Complete
+**Completed Phases:** Phase 1, Phase 2, Phase 3, Phase 4, Phase 5
 
 ---
 
-_Last updated: 2025-11-28 - Phase 4 complete_
+_Last updated: 2025-11-29 - Phase 5 complete (context menu & thread creation)_

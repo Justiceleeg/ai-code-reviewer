@@ -15,12 +15,19 @@ export interface SelectionRange {
   endLine: number;
 }
 
+export interface ContextMenuEvent {
+  x: number;
+  y: number;
+  selection: SelectionRange;
+}
+
 interface CodeEditorProps {
   onSelectionChange?: (selection: SelectionRange | null) => void;
   onGutterClick?: (threadId: string) => void;
+  onContextMenu?: (event: ContextMenuEvent) => void;
 }
 
-export function CodeEditor({ onSelectionChange, onGutterClick }: CodeEditorProps) {
+export function CodeEditor({ onSelectionChange, onGutterClick, onContextMenu }: CodeEditorProps) {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
   const decorationsRef = useRef<string[]>([]);
@@ -164,6 +171,26 @@ export function CodeEditor({ onSelectionChange, onGutterClick }: CodeEditorProps
         onSelectionChange?.({ startLine, endLine });
       });
 
+      // Context menu handler (right-click)
+      editor.onContextMenu((e) => {
+        e.event.preventDefault();
+        e.event.stopPropagation();
+
+        const selection = editor.getSelection();
+        if (!selection || selection.isEmpty()) {
+          return; // No selection, don't show context menu
+        }
+
+        const startLine = selection.startLineNumber;
+        const endLine = selection.endLineNumber;
+
+        onContextMenu?.({
+          x: e.event.posx,
+          y: e.event.posy,
+          selection: { startLine, endLine },
+        });
+      });
+
       // Configure language detection on initial content
       if (code) {
         const detected = detectLanguage('untitled', code);
@@ -172,7 +199,7 @@ export function CodeEditor({ onSelectionChange, onGutterClick }: CodeEditorProps
         }
       }
     },
-    [code, language, threads, setLanguage, onSelectionChange, onGutterClick]
+    [code, language, threads, setLanguage, onSelectionChange, onGutterClick, onContextMenu]
   );
 
   const handleChange: OnChange = useCallback(

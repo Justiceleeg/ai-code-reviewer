@@ -9,12 +9,25 @@ import { KebabMenu } from './KebabMenu';
 
 interface ThreadItemProps {
   thread: Thread;
+  isActive?: boolean;
   onClick?: () => void;
 }
 
-export function ThreadItem({ thread, onClick }: ThreadItemProps) {
+export function ThreadItem({ thread, isActive = false, onClick }: ThreadItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const threadRef = useRef<HTMLDivElement>(null);
+
+  // Auto-expand and scroll when this thread becomes active
+  useEffect(() => {
+    if (isActive) {
+      setIsExpanded(true);
+      // Scroll to this thread after a short delay to allow expansion
+      setTimeout(() => {
+        threadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    }
+  }, [isActive]);
 
   const resolveThread = useAppStore((state) => state.resolveThread);
   const addMessage = useAppStore((state) => state.addMessage);
@@ -60,6 +73,7 @@ export function ThreadItem({ thread, onClick }: ThreadItemProps) {
   if (!isExpanded) {
     return (
       <div
+        ref={threadRef}
         className={`cursor-pointer p-3 transition-colors hover:bg-zinc-900 ${
           isResolved ? 'opacity-60' : ''
         }`}
@@ -107,7 +121,7 @@ export function ThreadItem({ thread, onClick }: ThreadItemProps) {
 
   // Expanded view
   return (
-    <div className={`border-b border-zinc-800 ${isResolved ? 'opacity-60' : ''}`}>
+    <div ref={threadRef} className={`border-b border-zinc-800 ${isResolved ? 'opacity-60' : ''}`}>
       {/* Header */}
       <div
         className="flex cursor-pointer items-center justify-between bg-zinc-900/50 p-3"
