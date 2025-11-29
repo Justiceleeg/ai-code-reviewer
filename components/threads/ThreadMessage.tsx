@@ -1,9 +1,11 @@
 'use client';
 
 import type { Message } from '@/types';
+import { SuggestionCarousel } from '@/components/suggestions';
 
 interface ThreadMessageProps {
   message: Message;
+  threadId: string;
   isStreaming?: boolean;
   onRetry?: () => void;
   hasError?: boolean;
@@ -11,6 +13,7 @@ interface ThreadMessageProps {
 
 export function ThreadMessage({
   message,
+  threadId,
   isStreaming = false,
   onRetry,
   hasError = false,
@@ -58,14 +61,18 @@ export function ThreadMessage({
         </div>
       )}
 
-      {/* Code suggestions - will be rendered when they exist */}
-      {message.suggestions && message.suggestions.length > 0 && (
-        <div className="mt-3 rounded border border-zinc-700 bg-zinc-800/50 p-2">
-          <span className="text-xs text-zinc-500">
-            {message.suggestions.length} code suggestion
-            {message.suggestions.length > 1 ? 's' : ''} available
-          </span>
-        </div>
+      {/* Code suggestions carousel with diff view */}
+      {message.suggestions && message.suggestions.length > 0 && !isStreaming && (
+        <SuggestionCarousel
+          suggestions={message.suggestions}
+          threadId={threadId}
+          messageId={message.id}
+        />
+      )}
+
+      {/* Outside recommendations info banner */}
+      {message.outsideNotes && message.outsideNotes.length > 0 && !isStreaming && (
+        <OutsideNotesBanner notes={message.outsideNotes} />
       )}
     </div>
   );
@@ -206,4 +213,49 @@ function formatInlineCode(text: string): React.ReactNode {
     }
     return part;
   });
+}
+
+interface OutsideNotesBannerProps {
+  notes: string[];
+}
+
+function OutsideNotesBanner({ notes }: OutsideNotesBannerProps) {
+  return (
+    <div className="mt-3 rounded border border-blue-500/30 bg-blue-500/10 p-2">
+      <div className="mb-1 flex items-center gap-1.5">
+        <InfoIcon />
+        <span className="text-xs font-medium text-blue-400">
+          Additional changes may be needed
+        </span>
+      </div>
+      <div className="space-y-1">
+        {notes.map((note, index) => (
+          <p key={index} className="text-xs text-blue-300/80">
+            {note}
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function InfoIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="text-blue-400"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 16v-4" />
+      <path d="M12 8h.01" />
+    </svg>
+  );
 }

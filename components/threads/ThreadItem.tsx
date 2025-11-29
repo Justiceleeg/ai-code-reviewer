@@ -196,11 +196,12 @@ export function ThreadItem({
       )}
 
       {/* Messages */}
-      <div className="max-h-80 overflow-y-auto">
+      <div className="max-h-96 overflow-y-auto">
         {thread.messages.map((message) => (
           <ThreadMessage
             key={message.id}
             message={message}
+            threadId={thread.id}
             isStreaming={streamingMessageId === message.id}
           />
         ))}

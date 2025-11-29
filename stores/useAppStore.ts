@@ -46,6 +46,7 @@ interface AppActions {
   addMessage: (threadId: string, message: Omit<Message, 'id' | 'createdAt'>) => string;
   updateMessageContent: (threadId: string, messageId: string, content: string) => void;
   setMessageSuggestions: (threadId: string, messageId: string, suggestions: Message['suggestions']) => void;
+  setMessageOutsideNotes: (threadId: string, messageId: string, notes: Message['outsideNotes']) => void;
   updateThreadStatus: (threadId: string, status: ThreadStatus) => void;
   updateThreadSelection: (threadId: string, startLine: number, endLine: number) => void;
   resolveThread: (threadId: string) => void;
@@ -217,6 +218,25 @@ export const useAppStore = create<AppStore>()(
         }));
       },
 
+      setMessageOutsideNotes: (
+        threadId: string,
+        messageId: string,
+        outsideNotes: Message['outsideNotes']
+      ) => {
+        set((state) => ({
+          threads: state.threads.map((thread) =>
+            thread.id === threadId
+              ? {
+                  ...thread,
+                  messages: thread.messages.map((msg) =>
+                    msg.id === messageId ? { ...msg, outsideNotes } : msg
+                  ),
+                }
+              : thread
+          ),
+        }));
+      },
+
       updateThreadStatus: (threadId: string, status: ThreadStatus) =>
         set((state) => ({
           threads: state.threads.map((thread) =>
@@ -268,51 +288,89 @@ export const useAppStore = create<AppStore>()(
         const suggestion = message.suggestions.find((s) => s.id === suggestionId);
         if (!suggestion || suggestion.applied) return;
 
-        // Apply the suggestion to the code
+        // Get the original code's base indentation from the first line
         const code = state.editor.code;
         const codeLines = code.split('\n');
+        const originalFirstLine = codeLines[thread.startLine - 1] || '';
+        const baseIndentMatch = originalFirstLine.match(/^(\s*)/);
+        const baseIndent = baseIndentMatch ? baseIndentMatch[1] : '';
+
+        // Get the suggestion's indentation from its first line
+        const suggestedLines = suggestion.suggested.split('\n');
+        const suggestionFirstLine = suggestedLines[0] || '';
+        const suggestionIndentMatch = suggestionFirstLine.match(/^(\s*)/);
+        const suggestionIndent = suggestionIndentMatch ? suggestionIndentMatch[1] : '';
+
+        // Apply base indentation to suggestion if needed
+        let adjustedSuggestionLines = suggestedLines;
+        if (baseIndent && baseIndent !== suggestionIndent) {
+          // Calculate the difference and adjust each line
+          adjustedSuggestionLines = suggestedLines.map((line, index) => {
+            if (line.trim() === '') return line; // Keep empty lines as-is
+            // Remove suggestion's indent and add base indent
+            const lineWithoutIndent = line.replace(/^\s*/, '');
+            const lineIndentMatch = line.match(/^(\s*)/);
+            const lineIndent = lineIndentMatch ? lineIndentMatch[1] : '';
+            // Calculate relative indent from suggestion's first line
+            const relativeIndent = lineIndent.length > suggestionIndent.length
+              ? lineIndent.slice(suggestionIndent.length)
+              : '';
+            return baseIndent + relativeIndent + lineWithoutIndent;
+          });
+        }
+
+        // Calculate line difference
+        const originalLineCount = thread.endLine - thread.startLine + 1;
+        const newLineCount = adjustedSuggestionLines.length;
+        const lineDiff = newLineCount - originalLineCount;
+
+        // Apply the suggestion to the code
         const before = codeLines.slice(0, thread.startLine - 1);
         const after = codeLines.slice(thread.endLine);
-        const newCode = [...before, ...suggestion.suggested.split('\n'), ...after].join('\n');
+        const newCode = [...before, ...adjustedSuggestionLines, ...after].join('\n');
 
         // Update code
         set((s) => ({
           editor: { ...s.editor, code: newCode },
         }));
 
-        // Mark suggestion as applied
-        set((s) => ({
-          threads: s.threads.map((t) =>
-            t.id === threadId
-              ? {
-                  ...t,
-                  messages: t.messages.map((m) =>
-                    m.id === messageId
-                      ? {
-                          ...m,
-                          suggestions: m.suggestions?.map((sug) =>
-                            sug.id === suggestionId ? { ...sug, applied: true } : sug
-                          ),
-                        }
-                      : m
-                  ),
-                }
-              : t
-          ),
-        }));
+        // Update thread's end line
+        const newEndLine = thread.startLine + newLineCount - 1;
+        const adjustedSuggestion = adjustedSuggestionLines.join('\n');
 
-        // Update thread's original code and line range
-        const newEndLine = thread.startLine + suggestion.suggested.split('\n').length - 1;
+        // Update all threads in one operation:
+        // - Mark suggestion as applied for current thread
+        // - Update line range for current thread
+        // - Shift line numbers for threads that come after this one
         set((s) => ({
-          threads: s.threads.map((t) =>
-            t.id === threadId
-              ? {
-                  ...t,
-                  endLine: newEndLine,
-                  originalCode: suggestion.suggested,
-                }
-              : t
-          ),
+          threads: s.threads.map((t) => {
+            if (t.id === threadId) {
+              // Update the current thread
+              return {
+                ...t,
+                endLine: newEndLine,
+                originalCode: adjustedSuggestion,
+                messages: t.messages.map((m) =>
+                  m.id === messageId
+                    ? {
+                        ...m,
+                        suggestions: m.suggestions?.map((sug) =>
+                          sug.id === suggestionId ? { ...sug, applied: true } : sug
+                        ),
+                      }
+                    : m
+                ),
+              };
+            } else if (t.startLine > thread.endLine && lineDiff !== 0) {
+              // Shift threads that come after the modified range
+              return {
+                ...t,
+                startLine: t.startLine + lineDiff,
+                endLine: t.endLine + lineDiff,
+              };
+            }
+            return t;
+          }),
         }));
       },
 

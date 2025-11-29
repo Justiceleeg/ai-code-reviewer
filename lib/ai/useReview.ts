@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState } from 'react';
 import { useAppStore } from '@/stores';
-import { parseSuggestions } from './parseSuggestions';
+import { parseResponse } from './parseSuggestions';
 import type { ReviewAction, Message } from '@/types';
 
 interface ReviewOptions {
@@ -29,7 +29,7 @@ export function useReview() {
 
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const { addMessage, updateMessageContent, setMessageSuggestions } = useAppStore();
+  const { addMessage, updateMessageContent, setMessageSuggestions, setMessageOutsideNotes } = useAppStore();
 
   const startReview = useCallback(
     async (options: ReviewOptions) => {
@@ -109,10 +109,13 @@ export function useReview() {
           updateMessageContent(threadId, messageId, fullContent);
         }
 
-        // Parse suggestions from the final content
-        const suggestions = parseSuggestions(fullContent, thread.originalCode);
+        // Parse suggestions and outside notes from the final content
+        const { suggestions, outsideNotes } = parseResponse(fullContent, thread.originalCode);
         if (suggestions.length > 0) {
           setMessageSuggestions(threadId, messageId, suggestions);
+        }
+        if (outsideNotes.length > 0) {
+          setMessageOutsideNotes(threadId, messageId, outsideNotes);
         }
 
         setState({
@@ -143,7 +146,7 @@ export function useReview() {
         );
       }
     },
-    [addMessage, updateMessageContent, setMessageSuggestions]
+    [addMessage, updateMessageContent, setMessageSuggestions, setMessageOutsideNotes]
   );
 
   const abort = useCallback(() => {

@@ -247,32 +247,32 @@ This document outlines the implementation tasks for AI Code Review. Tasks are or
 ## Phase 7: Code Suggestions & Diff View
 
 ### 7.1 Diff View Component
-- [ ] Create `DiffView` component using Monaco diff editor
-- [ ] Configure inline mode (`renderSideBySide: false`)
-- [ ] Pass original and suggested code
-- [ ] Match editor theme
+- [x] Create `DiffView` component using Monaco diff editor
+- [x] Configure inline mode (`renderSideBySide: false`)
+- [x] Pass original and suggested code
+- [x] Match editor theme
 
 ### 7.2 Suggestion Carousel
-- [ ] Create `SuggestionCarousel` component
-- [ ] Display "1 of 3" indicator
-- [ ] Previous/Next navigation
-- [ ] Show current suggestion in diff view
+- [x] Create `SuggestionCarousel` component
+- [x] Display "1 of 3" indicator
+- [x] Previous/Next navigation
+- [x] Show current suggestion in diff view
 
 ### 7.3 Apply Flow
-- [ ] Add "Apply" button below diff
-- [ ] On apply, update code in editor
-- [ ] Mark suggestion as applied
-- [ ] Keep thread open for follow-up
+- [x] Add "Apply" button below diff
+- [x] On apply, update code in editor
+- [x] Mark suggestion as applied
+- [x] Keep thread open for follow-up
 
 ### 7.4 Code Update Logic
-- [ ] Replace only the selected line range
-- [ ] Preserve surrounding code
-- [ ] Update line numbers for other threads if affected
-- [ ] Handle edge cases (empty lines, whitespace)
+- [x] Replace only the selected line range
+- [x] Preserve surrounding code
+- [x] Update line numbers for other threads if affected
+- [x] Handle edge cases (empty lines, whitespace)
 
 ### 7.5 Outside Recommendations
-- [ ] Display AI notes about changes outside selection as info banner
-- [ ] Non-actionable (informational only, parsed in Phase 6.4)
+- [x] Display AI notes about changes outside selection as info banner
+- [x] Non-actionable (informational only, parsed in Phase 6.4)
 
 **Phase 7 Deliverable:** Full suggestion flow with diff preview and apply.
 
@@ -422,9 +422,9 @@ Phase 9 (Testing & Deployment)
 ## Progress Tracking
 
 **Started:** 2025-11-28
-**Current Phase:** Phase 6 Complete
-**Completed Phases:** Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 6
+**Current Phase:** Phase 7 Complete
+**Completed Phases:** Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 6, Phase 7
 
 ---
 
-_Last updated: 2025-11-29 - Completed Phase 6 (AI Integration with Vercel AI SDK)_
+_Last updated: 2025-11-29 - Completed Phase 7 (Code Suggestions & Diff View)_

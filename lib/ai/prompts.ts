@@ -7,11 +7,16 @@ Guidelines:
 - Focus on the most important issues first
 - When suggesting code changes, wrap them in a markdown code block with the label "suggestion"
 - Only provide suggestions for the selected code region
-- If you need to reference code outside the selection, describe it but don't suggest changes
+- If changes are needed outside the selection, use a special "outside" block to note them
 
-For code suggestions, use this format:
+For code suggestions within the selected region, use this format:
 \`\`\`suggestion
 // your suggested code here
+\`\`\`
+
+For notes about changes needed outside the selection (informational only), use:
+\`\`\`outside
+Brief note about what else might need to change and where
 \`\`\`
 
 You can provide multiple alternative suggestions if appropriate, each in its own suggestion block.`;

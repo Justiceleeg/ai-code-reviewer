@@ -23,6 +23,7 @@ export interface Message {
   role: 'user' | 'assistant';
   content: string;
   suggestions?: CodeSuggestion[];
+  outsideNotes?: string[]; // Notes about changes needed outside selection
   createdAt: Date;
 }
 
