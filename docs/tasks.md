@@ -1,0 +1,436 @@
+# AI Code Review - Implementation Plan
+
+## Overview
+
+This document outlines the implementation tasks for AI Code Review. Tasks are organized into phases with dependencies noted. Each task is sized for focused implementation sessions.
+
+**Estimated Total Tasks:** 45+
+**Phases:** 8
+
+---
+
+## Phase 1: Project Setup
+
+### 1.1 Initialize Next.js Project
+- [ ] Create Next.js 16 app with App Router (`pnpm create next-app@latest`)
+- [ ] Configure TypeScript strict mode
+- [ ] Set up folder structure per PRD (app/, components/, lib/, stores/, types/ at root level)
+- [ ] Create barrel exports (index.ts) for each folder
+
+### 1.2 Install Dependencies
+- [ ] Install Tailwind CSS v4 and configure
+- [ ] Install Zustand v5
+- [ ] Install Monaco Editor (`@monaco-editor/react`)
+- [ ] Install Vercel AI SDK (`pnpm add ai @ai-sdk/openai`)
+- [ ] Install utility libraries (uuid, date-fns if needed)
+
+### 1.3 Environment Setup
+- [ ] Create `.env.local` with `OPENAI_API_KEY`
+- [ ] Create `.env.example` for documentation
+- [ ] Add `.env.local` to `.gitignore`
+- [ ] Configure environment validation
+
+### 1.4 Base Layout
+- [ ] Create root layout with dark theme default
+- [ ] Set up global styles (Tailwind base)
+- [ ] Create responsive container (desktop-only)
+- [ ] Add app metadata (title, description)
+
+**Phase 1 Deliverable:** Empty app shell with all dependencies installed and configured.
+
+---
+
+## Phase 2: Type Definitions & Store
+
+### 2.1 Core Types
+- [ ] Define `Thread` interface
+- [ ] Define `Message` interface
+- [ ] Define `CodeSuggestion` interface
+- [ ] Define `EditorState` interface
+- [ ] Define `AppState` interface
+- [ ] Define `ThreadStatus` type ('active' | 'outdated' | 'resolved')
+- [ ] Define `ReviewAction` type ('explain' | 'bugs' | 'improve' | 'custom')
+
+### 2.2 Zustand Store
+- [ ] Create `useAppStore` with initial state
+- [ ] Implement editor state actions:
+  - `setCode(code: string)`
+  - `setLanguage(language: string)`
+  - `setFileName(fileName: string)`
+- [ ] Implement thread actions:
+  - `createThread(startLine, endLine, action, customPrompt?)`
+  - `addMessage(threadId, message)`
+  - `updateThreadStatus(threadId, status)`
+  - `updateThreadSelection(threadId, startLine, endLine)`
+  - `resolveThread(threadId)`
+- [ ] Implement suggestion actions:
+  - `applySuggestion(threadId, messageId, suggestionId)`
+- [ ] Implement session actions:
+  - `clearSession()`
+  - `setTheme(theme)`
+
+### 2.3 localStorage Persistence
+- [ ] Create localStorage middleware for Zustand
+- [ ] Implement state hydration on app load
+- [ ] Handle hydration mismatch (SSR vs client)
+- [ ] Test persistence across page refreshes
+
+**Phase 2 Deliverable:** Fully typed store with persistence, no UI yet.
+
+---
+
+## Phase 3: Code Editor
+
+### 3.1 Monaco Editor Setup
+- [ ] Create `CodeEditor` component wrapper
+- [ ] Configure Monaco for multi-language support
+- [ ] Set up dark/light theme switching
+- [ ] Configure editor options (line numbers, minimap off, word wrap)
+- [ ] Handle controlled value with proper diffing
+
+### 3.2 File Input
+- [ ] Implement paste handling (already works by default)
+- [ ] Implement drag-and-drop file upload
+- [ ] Read file content and detect language from extension
+- [ ] Set filename from dropped file
+- [ ] Show placeholder text when empty
+
+### 3.3 Language Detection
+- [ ] Create `languageDetection.ts` utility
+- [ ] Implement extension-based detection
+- [ ] Implement content-based heuristics (shebang, keywords)
+- [ ] Map detected language to Monaco language ID
+
+### 3.4 Selection Tracking
+- [ ] Track current selection (start/end line)
+- [ ] Expose selection state to parent
+- [ ] Highlight selected lines visually
+- [ ] Clear selection when clicking outside
+
+### 3.5 Line Limit Enforcement
+- [ ] Check line count on code change
+- [ ] Show warning when approaching 1000 lines
+- [ ] Truncate or prevent paste beyond limit
+- [ ] Display current line count
+
+**Phase 3 Deliverable:** Functional code editor with file input, language detection, and selection tracking.
+
+---
+
+## Phase 4: Thread Panel
+
+### 4.1 Panel Layout
+- [ ] Create `ThreadPanel` component (right side)
+- [ ] Implement resizable width (drag handle)
+- [ ] Store panel width preference
+- [ ] Handle collapsed/expanded panel state
+
+### 4.2 Thread List
+- [ ] Create `ThreadList` component
+- [ ] Sort threads by start line number
+- [ ] Render `ThreadItem` for each thread
+- [ ] Handle empty state (no threads yet)
+
+### 4.3 Thread Item (Collapsed)
+- [ ] Create `ThreadItem` component
+- [ ] Display line range ("Lines 5-12")
+- [ ] Display message count
+- [ ] Show status indicator (active/outdated/resolved)
+- [ ] Yellow banner for outdated (visible when collapsed)
+- [ ] Distinct styling for resolved
+- [ ] Click to expand
+
+### 4.4 Thread Item (Expanded)
+- [ ] Show full message history
+- [ ] Render `ThreadMessage` for each message
+- [ ] Show text input for follow-up
+- [ ] Show kebab menu (three dots)
+- [ ] Scroll to bottom on new messages
+
+### 4.5 Thread Message
+- [ ] Create `ThreadMessage` component
+- [ ] Style user messages vs AI messages
+- [ ] Render markdown in AI responses
+- [ ] Show typing indicator during streaming
+- [ ] Show retry button on error
+
+### 4.6 Kebab Menu
+- [ ] Create kebab menu dropdown
+- [ ] "Resolve" option (always visible)
+- [ ] "Update Selection" option (outdated threads only)
+- [ ] Handle menu positioning
+
+### 4.7 Gutter Markers
+- [ ] Add visual indicators in editor gutter for threads
+- [ ] Color-code by status (active/outdated/resolved)
+- [ ] Click gutter marker to scroll panel to thread
+
+**Phase 4 Deliverable:** Complete thread panel with all states and interactions (no AI yet).
+
+---
+
+## Phase 5: Context Menu & Thread Creation
+
+### 5.1 Context Menu Component
+- [ ] Create `ContextMenu` component
+- [ ] Position near right-click location
+- [ ] Close on click outside
+- [ ] Close on escape key
+
+### 5.2 Menu Options
+- [ ] "Explain" option
+- [ ] "Find bugs" option
+- [ ] "Improve" option
+- [ ] "Custom..." option (opens input)
+- [ ] Disable menu when no selection
+
+### 5.3 Custom Prompt Input
+- [ ] Create inline input for custom prompts
+- [ ] Auto-focus on open
+- [ ] Submit on Enter
+- [ ] Cancel on Escape
+
+### 5.4 Thread Creation Flow
+- [ ] On menu action, create new thread in store
+- [ ] Capture selected code range
+- [ ] Store original code text (for outdated detection)
+- [ ] Scroll panel to new thread
+- [ ] Trigger AI request
+
+**Phase 5 Deliverable:** Right-click menu that creates threads and triggers AI (AI integration in next phase).
+
+---
+
+## Phase 6: AI Integration
+
+### 6.1 API Route Setup
+- [ ] Create `POST /api/review` route handler
+- [ ] Validate request body
+- [ ] Set up Vercel AI SDK with OpenAI provider
+- [ ] Handle errors gracefully
+
+### 6.2 Prompt Engineering
+- [ ] Create `prompts.ts` with system prompts
+- [ ] Create prompt templates for each action:
+  - Explain: focus on clarity
+  - Find bugs: identify issues, optionally suggest fixes
+  - Improve: suggest improvements or confirm "looks good"
+  - Custom: user's question
+- [ ] Include context: selected code, full file, language
+- [ ] Include thread history for follow-ups
+- [ ] Instruct AI on code suggestion format
+
+### 6.3 Streaming Response
+- [ ] Implement streaming in route handler
+- [ ] Use `ReadableStream` for SSE
+- [ ] Parse streaming chunks on client
+- [ ] Update message content incrementally
+- [ ] Handle stream completion
+
+### 6.4 Response Parsing
+- [ ] Create `parseResponse.ts` utility
+- [ ] Extract code suggestions from response
+- [ ] Parse multiple alternatives
+- [ ] Structure into `CodeSuggestion` objects
+- [ ] Handle responses with no suggestions
+
+### 6.5 Client Integration
+- [ ] Create `useReview` hook for API calls
+- [ ] Handle loading state
+- [ ] Handle error state with retry
+- [ ] Prevent duplicate requests
+- [ ] Cancel on unmount
+
+### 6.6 Follow-up Messages
+- [ ] Send thread history with follow-up requests
+- [ ] Maintain conversation context
+- [ ] Handle "resolved" keyword in user message
+
+**Phase 6 Deliverable:** Working AI integration with streaming responses.
+
+---
+
+## Phase 7: Code Suggestions & Diff View
+
+### 7.1 Diff View Component
+- [ ] Create `DiffView` component using Monaco diff editor
+- [ ] Configure inline mode (`renderSideBySide: false`)
+- [ ] Pass original and suggested code
+- [ ] Match editor theme
+
+### 7.2 Suggestion Carousel
+- [ ] Create `SuggestionCarousel` component
+- [ ] Display "1 of 3" indicator
+- [ ] Previous/Next navigation
+- [ ] Show current suggestion in diff view
+
+### 7.3 Apply Flow
+- [ ] Add "Apply" button below diff
+- [ ] On apply, update code in editor
+- [ ] Mark suggestion as applied
+- [ ] Keep thread open for follow-up
+
+### 7.4 Code Update Logic
+- [ ] Replace only the selected line range
+- [ ] Preserve surrounding code
+- [ ] Update line numbers for other threads if affected
+- [ ] Handle edge cases (empty lines, whitespace)
+
+### 7.5 Outside Recommendations
+- [ ] Parse AI notes about changes outside selection
+- [ ] Display as info banner in thread
+- [ ] Non-actionable (informational only)
+
+**Phase 7 Deliverable:** Full suggestion flow with diff preview and apply.
+
+---
+
+## Phase 8: Header, Export & Polish
+
+### 8.1 App Header
+- [ ] Create `AppHeader` component
+- [ ] Display "AI Code Review" title
+- [ ] File name (editable inline)
+- [ ] Language indicator badge
+- [ ] Theme toggle (sun/moon icons)
+- [ ] Export button
+- [ ] Copy code button
+- [ ] Clear session button
+
+### 8.2 Theme Toggle
+- [ ] Create `ThemeToggle` component
+- [ ] Toggle between dark/light
+- [ ] Update Monaco theme
+- [ ] Persist preference
+- [ ] Apply Tailwind dark mode
+
+### 8.3 Export Threads
+- [ ] Create `markdown.ts` export utility
+- [ ] Format threads oldest to newest
+- [ ] Include: line range, user prompts, AI responses
+- [ ] Include code suggestions (applied or not)
+- [ ] Trigger download as `.md` file
+
+### 8.4 Copy Code
+- [ ] Create copy-to-clipboard function
+- [ ] Copy current code state
+- [ ] Show toast/confirmation on success
+
+### 8.5 Clear Session
+- [ ] Create `ConfirmDialog` component
+- [ ] Show confirmation before clearing
+- [ ] Clear store and localStorage
+- [ ] Reset to empty state
+
+### 8.6 Outdated Detection
+- [ ] Compare current code at line range to stored original
+- [ ] Mark thread as outdated if different
+- [ ] Trigger on any code change
+- [ ] Efficient diffing (avoid unnecessary checks)
+
+### 8.7 Update Selection Flow
+- [ ] Enter "selection mode" from kebab menu
+- [ ] Highlight current (stale) selection
+- [ ] User selects new range
+- [ ] Update thread line range
+- [ ] Clear outdated status
+- [ ] Exit selection mode
+
+**Phase 8 Deliverable:** Complete application with all features.
+
+---
+
+## Phase 9: Testing & Deployment
+
+### 9.1 Manual Testing
+- [ ] Test full user flow end-to-end
+- [ ] Test all four review actions
+- [ ] Test thread states (active, outdated, resolved)
+- [ ] Test multiple overlapping threads
+- [ ] Test code suggestions and apply
+- [ ] Test export and copy
+- [ ] Test persistence across refresh
+- [ ] Test clear session
+- [ ] Test theme toggle
+
+### 9.2 Edge Cases
+- [ ] Empty code submission
+- [ ] Very long responses
+- [ ] Network failures
+- [ ] Invalid selections
+- [ ] Rapid consecutive requests
+- [ ] Large files (near 1000 lines)
+
+### 9.3 Vercel Deployment
+- [ ] Create Vercel project
+- [ ] Configure environment variables
+- [ ] Deploy and verify
+- [ ] Test production build
+
+### 9.4 Documentation
+- [ ] Write README with setup instructions
+- [ ] Document environment variables
+- [ ] Add usage examples
+- [ ] Note known limitations
+
+**Phase 9 Deliverable:** Deployed, documented application.
+
+---
+
+## Task Dependencies
+
+```
+Phase 1 (Setup)
+    ↓
+Phase 2 (Types & Store)
+    ↓
+Phase 3 (Editor) ←──────────────────┐
+    ↓                               │
+Phase 4 (Thread Panel) ─────────────┤
+    ↓                               │
+Phase 5 (Context Menu) ─────────────┤
+    ↓                               │
+Phase 6 (AI Integration) ───────────┤
+    ↓                               │
+Phase 7 (Suggestions & Diff) ───────┘
+    ↓
+Phase 8 (Header, Export, Polish)
+    ↓
+Phase 9 (Testing & Deployment)
+```
+
+**Notes:**
+- Phases 3-7 can have some parallel work but have interdependencies
+- Phase 6 (AI) can start early with mock responses
+- Phase 8 has mostly independent tasks
+
+---
+
+## Implementation Notes
+
+### For AI Coding Assistants
+
+1. **One task at a time** - Complete and test each checkbox before moving on
+2. **Small files** - Keep components under 150 lines
+3. **Types first** - Always define types before implementation
+4. **Test incrementally** - Verify each feature works before building on it
+5. **Avoid useEffect pitfalls** - Be careful with dependencies to prevent loops
+
+### Key Technical Considerations
+
+1. **Monaco SSR** - Monaco doesn't support SSR; use dynamic imports with `ssr: false`
+2. **Hydration** - Zustand persist middleware needs hydration handling
+3. **Streaming** - Use Web Streams API for SSE responses
+4. **Selection state** - Monaco selection events fire frequently; debounce if needed
+
+---
+
+## Progress Tracking
+
+**Started:** _Not yet_
+**Current Phase:** _N/A_
+**Completed Phases:** _None_
+
+---
+
+_Last updated: Initial creation_
