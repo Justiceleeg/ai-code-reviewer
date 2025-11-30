@@ -62,6 +62,7 @@ export function ThreadItem({
 
   const handleResolve = useCallback(() => {
     resolveThread(thread.id);
+    setIsExpanded(false);
   }, [resolveThread, thread.id]);
 
   const handleDelete = useCallback(() => {
